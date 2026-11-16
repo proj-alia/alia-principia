@@ -1,13 +1,13 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1120" viewBox="0 0 1840 1120" role="img" aria-label="Principia 核心工作空间组织目录">
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1120" viewBox="0 0 1840 1120" role="img" aria-label="Principia 工作空间组织目录">
 <style>text{font-family:'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#17334d}a:hover text{fill:#1b75be}</style>
 <rect width="1840" height="1120" fill="#edf2f7"/>
 <rect width="1840" height="175" fill="#153655"/>
-<text x="42" y="60" style="fill:white" font-size="34" font-weight="700">Principia · 通用 AI 数字个体核心架构图纸（原版核心保留 + 可扩展剥离）</text>
-<text x="44" y="100" style="fill:#d2e1ef" font-size="20">Rust Cargo Workspace (14 Crates) + 唯一内置 WebUI 面板与基础包 (8 Packages) · 23 个核心专题 · 479 个符号节点</text>
-<text x="44" y="138" style="fill:#b5cee2" font-size="15">核心铁律：保留原版全部核心能力 | 移除 Live2D/VRM/桌面壳/第三方Bot 等可扩展功能 | 仅保留唯一内置 apps/webui 面板进行配置、对话沙盒验证与插件扩展</text>
+<text x="42" y="60" style="fill:white" font-size="34" font-weight="700">Principia · 通用 AI 数字个体全栈架构图纸</text>
+<text x="44" y="100" style="fill:#d2e1ef" font-size="20">Rust 核心运行时 (14 Crates) + 唯一内置 WebUI 控制台与前端基础包 (8 Packages) · 23 个核心专题 · 479 个符号节点</text>
+<text x="44" y="138" style="fill:#b5cee2" font-size="15">系统边界：核心运行在 Rust Crates | 唯一内置前端为 apps/webui 控制台（含测试沙盒直接对话）| 外部渠道、呈现与场景统一通过插件与通道网关扩展</text>
 <rect x="42" y="215" width="568" height="112" rx="10" fill="#ffffff" stroke="#d7e1ec"/>
 <rect x="42" y="215" width="6" height="112" rx="3" fill="#2d6595"/>
-<text x="64" y="249" font-size="20" font-weight="700">唯一内置前端宿主 (Vue 3 / TS)</text>
+<text x="64" y="249" font-size="20" font-weight="700">唯一内置 WebUI 控制台 (Vue 3 / TS)</text>
 <text x="64" y="285" font-size="16" font-weight="600" fill="#204e76">apps/webui</text>
 <text x="64" y="303" font-size="12" fill="#66798c">@alia/webui</text>
 <rect x="638" y="215" width="568" height="332" rx="10" fill="#ffffff" stroke="#d7e1ec"/>
@@ -67,5 +67,5 @@
 <text x="1256" y="573" font-size="12" fill="#66798c">@alia/ui-timeline</text>
 <text x="1256" y="599" font-size="16" font-weight="600" fill="#204e76">packages/ui-trace</text>
 <text x="1256" y="617" font-size="12" fill="#66798c">@alia/ui-trace</text>
-<text x="44" y="1096" font-size="15" fill="#475569">阅读路径：工作空间 (Rust Crates / WebUI Packages) → 23 个核心专题职责图 → 调用与数据流图 → 节点状态归属与导出符号</text>
+<text x="44" y="1096" font-size="15" fill="#475569">阅读路径：工作空间 (Rust Crates / WebUI Packages) → 23 个专题职责图 → 调用与数据流图 → 节点状态归属与导出符号</text>
 </svg>

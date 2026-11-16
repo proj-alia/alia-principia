@@ -1,6 +1,6 @@
-# Principia · 通用 AI 数字个体核心架构设计规范（原版核心能力保留 + 可扩展功能剥离 + 唯一内置 WebUI 面板）
+# Principia · 通用 AI 数字个体全栈架构设计规范
 
-> **定位声明**：本仓库是一套**纯粹、自包含、零历史包袱、可直接驱动 Agent 工程开发的权威架构规范库（System Blueprint & Architecture Principia）**。它严格以原版架构图谱为基准，**将其中一切属于“可扩展功能”的部分（Live2D、VRM、MMD/Spine/Tachie、口型/微动驱动、Tamagotchi 桌面壳、Pocket 移动壳及 Discord/Minecraft/Telegram/Satori 第三方集成）干净移除，100% 保留原版全部核心能力、细粒度节点与调用/数据流关系**。后端底层统一采用 **Rust Cargo Workspace (`crates/*`)**，前端仅保留**唯一内置的 `apps/webui` 控制台面板**（用于在 WebUI 中完成配置、在测试沙盒中直接对话体验、并通过插件与通道底座进行一切扩展）。全库共包含 **22 个纯净工作空间**、**23 个核心架构专题**、**479 个代码符号节点**、**525 条有向类型化关系边**、**24 条架构边界守则** 以及 **9 条端到端运行次序**。
+> **规范定位**：本仓库是一套**纯粹、自包含、权威、零历史包袱、可直接驱动 Agent 工程开发的架构设计规范库（System Blueprint & Architecture Principia）**。系统采用 **Rust 核心运行时 (`crates/*` Cargo Workspace)** 与 **唯一内置 WebUI 控制台面板 (`apps/webui` + `packages/*`, Vue 3 + TypeScript)** 正交架构，通过 **`REST + SSE`** 实时同步本地持久状态；一切外部交互渠道、呈现端、行业工具与垂直场景均通过标准插件宿主（`crates/alia-extension-host`）、插件协议（`crates/alia-plugin-protocol`）与接入渠道网关（`crates/alia-channel-gateway`）按需扩展。全库共定义 **22 个工程工作空间**、**23 个正交架构专题**、**479 个导出符号与节点**、**525 条有向类型化关系边**、**24 条核心架构不变量** 与 **9 条端到端运行次序**。
 
 ---
 
@@ -8,41 +8,41 @@
 
 | 产物文件 | 类型 | 核心用途 |
 |---|---|---|
-| [Principia-Architecture-Atlas.html](./Principia-Architecture-Atlas.html) | 单文件离线交互式图纸 | **首选工作台**。内嵌 23 个专题的职责组织图（`-organization.svg`）、调用与数据流图（`-relations.svg`）、节点登记表、右侧节点详情检查器（Inspector：查看导出符号、职责、状态归属、上游调用者、下游被调者）、源码组织树（`crates/*` + `apps/webui` + `packages/*`）、22 个工作空间依赖清单、24 条架构边界、9 条运行次序与全局秒级检索。 |
-| [architecture-data.json](./architecture-data.json) | 机器可读唯一事实源（SSOT） | 供开发 Agent 与分析工具直接读取的结构化架构数据库，包含 `sections`（23）、`inventory`（22）、`findings`（24）、`sequences`（9）与统计元数据。 |
-| [source-index.csv](./source-index.csv) | 全量符号与源码路径索引 | UTF-8 BOM 表格，按 `专题, 节点ID, 名称, 职责分组, 源码路径, 行, 符号, 职责, 状态, 架构分层, URL` 索引全部 479 个节点实例（跨 229 个核心源码文件）。 |
-| [Organization-Overview.svg](./Organization-Overview.svg) / [Organization-Expanded.svg](./Organization-Expanded.svg) | 全局矢量总图 | 工程工作空间全量分组海报图与对象级展开总树。 |
+| [Principia-Architecture-Atlas.html](./Principia-Architecture-Atlas.html) | 单文件离线交互式图纸 | **首选工作台**。内嵌 23 个专题的职责组织图（`-organization.svg`）、调用与数据流图（`-relations.svg`）、节点登记表、右侧节点详情检查器（Inspector：查看导出符号、职责、状态与资源归属、上游调用者、下游被调者）、源码组织树（`crates/*` + `apps/webui` + `packages/*`）、22 个工作空间依赖清单、24 条架构不变量、9 条运行次序与全局秒级检索。 |
+| [architecture-data.json](./architecture-data.json) | 机器可读唯一事实源（SSOT） | 供编码 Agent 与自动化工具直接解析的结构化架构数据库，包含 `sections`（23）、`inventory`（22）、`findings`（24）、`sequences`（9）与统计元数据。 |
+| [source-index.csv](./source-index.csv) | 全量符号与源码路径索引 | UTF-8 BOM 表格，按 `专题, 节点ID, 名称, 职责分组, 源码路径, 行, 符号, 职责, 状态, 架构分层, URL` 索引全部 479 个节点（跨 231 个核心源码文件）。 |
+| [Organization-Overview.svg](./Organization-Overview.svg) / [Organization-Expanded.svg](./Organization-Expanded.svg) | 全局矢量总图 | 工程工作空间全量分组海报图与 23 专题展开总树。 |
 | [diagrams/](./diagrams/) | 23 专题 `.dot` 与 `.svg` 图集 | 每个专题成对提供 `*-organization.dot/.svg`（职责分组树）与 `*-relations.dot/.svg`（调用/数据/事件/生命周期流），共 92 个图表文件。 |
-| [Principia-Architecture-Specification.md](./Principia-Architecture-Specification.md) | 全景架构设计规范正文 | 本文档。阐述原版核心能力保留与可扩展功能剥离原则、Rust + 唯一内置 WebUI 面板架构、四维读图法则、契约即 Rust 符号（Contract-as-Rust-Symbol + Specta），以及 23 个专题的完整对象与关系细表。 |
-| [AGENTS.md](./AGENTS.md) / [CLAUDE.md](./CLAUDE.md) | Agent 工程开发施工准则 | 规定编码 Agent 如何按图索骥、定位 Rust Crates 与 WebUI 包、遵守“核心保留 + 插件扩展”铁律。 |
+| [Principia-Architecture-Specification.md](./Principia-Architecture-Specification.md) | 全栈架构设计规范正文 | 本文档。阐述系统分层与状态所有权、四维工程定位法则、契约即 Rust 符号（Contract-as-Rust-Symbol + Specta）、插件扩展边界，以及 23 个专题的完整对象与关系细表。 |
+| [AGENTS.md](./AGENTS.md) / [CLAUDE.md](./CLAUDE.md) | Agent 工程开发施工手册 | 规定开发 Agent 如何定位 Rust Crates 与 WebUI 模块、遵守跨模块边界铁律并执行验证。 |
 
 ---
 
-## 第一部分：架构裁剪与核心保留准则 —— 如何在原版基础上剥离可扩展功能并保留全部核心能力？
+## 第一部分：核心系统架构基石
 
-### 1.1 原版 24 专题的裁剪与保留边界
+### 1.1 正交分层与技术栈边界
 
-| 处置类别 | 原版专题范围 | 工程处置与边界说明 |
+| 架构层级 | 技术栈与工作空间范围 | 核心职责与状态权威 |
 |---|---|---|
-| **整章移除的可扩展专题** | 原专题 `17 vrm`（VRM 3D 形象）<br>原专题 `22 platform-integrations`（Discord / Minecraft / Telegram / Satori） | 3D 形象渲染与具体第三方平台/游戏 Bot 均属于外部可扩展事物，从核心仓库中整章剔除，零内置。 |
-| **剔除可扩展节点、保留核心能力的专题** | 原专题 `01 organization`、`02 platform-hosts`、`03 character`、`16 expression` | 1. 在 `01/02` 中移除 `Tamagotchi`、`Pocket`、`Live2D`、`VRM/Three`、`MMD/Spine/Tachie` 与第三方 Bot 节点，保留 `alia-server` 本机宿主与唯一内置的 `apps/webui` 面板；<br>2. 在 `03 character` 中**完整保留**角色卡（`AliaCard`）、设定文本与模块配置继承解析（`getModules`），移除 9 个绑定 Live2D/VRM 的模型读取与策略节点；<br>3. 在 `16 expression` 中**完整保留**流式输出控制与内联标记解析（`StreamingControl`、`createStreamingControlParser`、`normalizeActPayload`、`EmotionPayload`），移除 17 个 Live2D/VRM 内部渲染节点。 |
-| **100% 完整保留的原版核心能力专题** | 原专题 `04 runtime_host`、`05 runtime_schedule`、`06 runtime_domain`、`07 runtime_providers`、`08 runtime_tools`、`09 runtime_memory`、`10 runtime_storage`、`11 spark`、`12 vision`、`13 voice_host`、`14 voice_input`、`15 voice_output`、`18 platform-extension-host`、`19 platform-kits-protocol`、`20 platform-channel`、`21 platform-backend`、`23 lifetime`、`24 observability` | 原版的所有核心调度、会话域、上下文注册表、模型服务与工具循环、长期记忆与 Recipe 技能、本地持久存储、Spark 与 Notebook 笔记、视觉与语音控制管线、`ExtensionHost` 插件宿主、`Kit` 契约、模块 WebSocket 通道网关、`stream-kit` 生命周期底座与 `trace-kit` 执行观测底座 **100% 原汁原味保留**，并落地于 Rust `crates/*`。 |
-| **唯一内置前端面板专题** | 专题 `23 webui-console`（`apps/webui`） | 项目本身只存在一个内置 WebUI 控制台面板（`apps/webui`），通过 `REST + SSE` 与本机 Rust 实例实时同步。面板提供**工作台（运行概览、测试沙盒直接对话）**、**数字个体（身份与人格、记忆管理）**、**连接与能力（接入渠道、模型服务、扩展管理、技能管理）**、**配置与运行（配置文件、自动化任务、数据与日志、权限与审批、系统设置）**，所有其他功能只能通过插件扩展。 |
+| **Rust 核心后端与数字个体运行时**<br>*(Backend & Digital Individual Core)* | **Rust (2024 Edition)**<br>`crates/alia-*`（共 14 个 Crates）<br>`axum`, `tokio`, `sqlx` (`sqlite-vec` / `pgvector`), `reqwest`, `tracing`, `specta` | 1. **进程级单实例状态权威**：本机网关宿主（`alia-server`）、角色定义与模块继承（`alia-core-character`）、通用 Agent 调度运行时（`alia-core-agent`）、推理服务与四维分工路由（`alia-provider-inference`）、持久存储（`alia-storage`）、认证服务（`alia-auth-service`）全部驻留在 `Arc<AliaServerState>` 中。<br>2. **多模态感知与执行底座**：音频输入/VAD/声纹门控/流控制/TTS 输出（`alia-audio-pipeline`）、视觉感知与单飞去重（`alia-vision-pipeline`）、异步生命周期原语（`alia-stream-kit`）及全链路观测（`alia-trace-kit`）。 |
+| **唯一内置前端控制台面板**<br>*(Built-in WebUI Console)* | **Vue 3 + TypeScript**<br>`apps/webui` (`@alia/webui`) + `packages/*`（共 8 个包） | 1. **控制台四大区域**：工作台（`运行概览`、`测试沙盒` 直接对话体验）、数字个体（`身份与人格`、`记忆管理`）、连接与能力（`接入渠道`、`模型服务`［含最多 6 路并发探活与日常对话/后台活动/内部推理/目标决策四维分工］、`扩展管理`、`技能管理`）、配置与运行（`配置文件`、`自动化任务`、`数据与日志`、`权限与审批`、`系统设置`）。<br>2. **实时同步与诊断**：通过 `REST + SSE` 实时同步本地持久状态，并内置 2D Canvas Trace 时间轴（`ui-trace` / `ui-timeline` / `timeline-canvas`）与浏览器音频适配（`audio-web`）。 |
+| **通用插件与接入渠道底座**<br>*(Extensions & Channel Gateway)* | **Rust 沙箱宿主与标准协议**<br>`crates/alia-plugin-protocol`<br>`crates/alia-extension-host`<br>`crates/alia-channel-gateway` | 定义插件清单（Manifest v2）、权限领域与交互式审批决议（`PermissionResolver`）、`KitContract`（Tool / Widget / Context / Provider）、统一传输通道（`in-memory / websocket / subprocess`）与模块 WebSocket 路由网关。任何外部聊天客户端、呈现端、传感端或专业场景工具均通过此层零侵入接入。 |
+| **跨语言契约即 Rust 符号**<br>*(Contract-as-Rust-Symbol)* | **`crates/alia-protocol` + `specta`** $\rightarrow$ **`packages/stage-shared`** | 所有前后端共享协议帧、事件与领域结构体在 Rust Crates 中使用 `#[derive(Serialize, Deserialize, specta::Type)]` 声明，编译期自动生成前端 TypeScript 类型定义，彻底消除双端手写 Schema 漂移。 |
 
 ---
 
-### 1.2 阅读与施工的四维架构法则
+### 1.2 阅读与施工的四维工程定位法则
 
-针对图中或表中任何一个模块与符号，开发 Agent 必须同时核对以下四维正交属性：
+针对图谱或正文中的任意一个模块与符号，开发 Agent 必须同时核对以下四维正交属性：
 
-1. **代码归属（Physical Crate / Package & File）**：该符号位于 `crates/*` 的哪个 `.rs` 文件，还是 `apps/webui` / `packages/*` 的哪个 `.ts` / `.vue` 文件？
-2. **调用与数据流（Call, Data & Event Flow）**：上游是谁、下游是谁？走的是同步/异步调用（`call`）、数据传递（`data`）、事件广播（`event`）、契约约束（`contract`）还是持有归属（`owns`）？
-3. **状态与生命周期（State Ownership & Lifecycle）**：谁持有状态（Rust `Arc<AliaServerState>`、Tokio `Scope`、SQLx 持久层，还是前端 Pinia Store）？何时初始化、何时销毁？
-4. **运行与部署边界（Process & Runtime Boundary）**：它运行在 Rust `alia-server` 本机主进程、插件扩展宿主（`ExtensionHost`），还是浏览器 `apps/webui` 控制台面板？
+1. **代码归属（Physical Crate / Package & File）**：确认符号定义在 `crates/*` 的哪个 `.rs` 模块，还是 `apps/webui` / `packages/*` 的哪个 `.ts` / `.vue` 模块。
+2. **调用与数据流（Call, Data & Event Flow）**：沿有向关系边核对上游调用者、下游被调者以及交互载荷语义（`call` / `data` / `event` / `contract` / `owns` / `lifecycle` / `dependency`）。
+3. **状态与生命周期（State Ownership & Lifecycle）**：明确谁持有状态（Rust `Arc<AliaServerState>`、SQLx 数据库事务、`ExtensionSession` 租约、Tokio `Scope`，还是前端 Pinia Store）及其创建与释放时机。
+4. **进程与扩展边界（Process & Extension Boundary）**：明确当前符号运行于 `alia-server` 本机主进程、插件扩展沙箱（`ExtensionHost`）、外部模块网关（`ChannelGateway`）还是 `apps/webui` 浏览器上下文。
 
 ---
 
-## 第二部分：工程工作空间总目录（22 个纯净核心 Workspaces 与内部依赖 DAG）
+## 第二部分：工程工作空间总目录（22 个 Workspaces 与内部依赖 DAG）
 
 | 序号 | 生态分类 | 真实目录路径 | 工作空间包名 / Crate 名 | 内部依赖声明 (`Cargo.toml` / `workspace:`) |
 |---|---|---|---|---|
@@ -73,42 +73,42 @@
 
 ## 第三部分：23 个核心架构专题全景展开（节点、符号、状态归属与调用/数据流）
 
-### 专题 01：全局组织与职责边界（原版核心能力保留 + 唯一内置 WebUI 面板 + 插件扩展底座） (`organization`)
+### 专题 01：全局组织与职责边界（Rust 核心运行时 + 唯一内置 WebUI 面板 + 插件扩展底座） (`organization`)
 
-> **专题定位**：基于原版全局组织图，完整移除所有可扩展外围事物（Live2D、VRM、MMD/Spine/Tachie、Tamagotchi 桌面壳、Pocket 移动壳及 Discord/Minecraft/Telegram/Satori 专用集成），100% 保留通用 AI 核心能力（角色与配置继承、通用 Agent 运行时、模型推理与分工路由、记忆与存储、语音/视觉核心管线、ExtensionHost 插件宿主、ChannelGateway 通道网关、stream-kit 与 trace-kit），并收敛为唯一的内置 apps/webui 控制台面板。
+> **专题定位**：系统由三大正交层构成：1) 通用 AI 数字个体 Rust 核心运行时（`crates/*`：通用 Agent 调度、角色配置继承、四维模型分工推理、SQLx 记忆与持久化、听觉/视觉管线、并发与观测底座）；2) 唯一内置的 WebUI 控制台面板（`apps/webui` + `packages/*`，提供运行概览、测试沙盒直接对话体验、配置中心与 Trace 诊断）；3) 通用插件与接入渠道扩展底座（`alia-extension-host` / `alia-plugin-protocol` / `alia-channel-gateway`），支撑一切外部渠道、表现端、工具与场景插件的按需接入。
 
 - **配套矢量图纸**：[职责组织图 (`01-organization-organization.svg`)](./diagrams/01-organization-organization.svg) ｜ [调用与数据流图 (`01-organization-relations.svg`)](./diagrams/01-organization-relations.svg) ｜ [Graphviz 组织图源](./diagrams/01-organization-organization.dot) ｜ [Graphviz 关系图源](./diagrams/01-organization-relations.dot)
 - **直接涉及源码范围**：`Cargo.toml`, `pnpm-workspace.yaml`, `apps/webui`, `crates/alia-server`, `crates/alia-core-agent`, `crates/alia-extension-host`, `crates/alia-channel-gateway`
 
-#### 读图与工程边界守则
-- 项目本身只存在一个内置前端面板（apps/webui）与一套 Rust 核心后端（crates/*），通过 REST + SSE 实时同步本地持久状态。
-- 原版中的 2D/3D 形象渲染（Live2D / VRM）、独立聊天软件（IM / 独立 WebChat）、直播、游戏等均属于可扩展功能，已从核心架构中彻底移除，未来统一通过 ExtensionHost（专题 17/18）与 ChannelGateway（专题 19）以插件形式扩展。
-- 为了利于项目落地与开发者直接体验，apps/webui 面板内部提供“测试沙盒”直接对话功能，并集中管理身份、记忆、接入渠道、模型服务、扩展、技能、配置文件、自动化任务、数据日志与权限审批。
+#### 工程边界守则
+- 系统内置且仅内置一个前端控制台面板（apps/webui），通过 REST + SSE 与本机 Rust 核心实例（alia-server）实时同步本地持久状态。
+- 核心运行时的身份（alia-core-character）、记忆（alia-storage）与对话推理状态全部持久驻留在 Rust 本机实例中，模型切换与插件热插拔均不影响个体连续性。
+- 任何具体外部交互渠道（独立聊天客户端、IM 平台、外部表现端、专用场景工具）均不在核心仓库硬编码，统一通过 ExtensionHost（专题 17/18）与 ChannelGateway（专题 19）扩展。
 
 #### 节点与状态归属登记表（共 20 个节点）
 
 | 节点 ID | 职责分组 | 名称 | 导出符号 (`symbol`) | 源码路径与行号 | 职责边界 | 状态与生命周期归属 | 架构分层 |
 |---|---|---|---|---|---|---|---|
-| `O-WEBUI` | 应用宿主 (唯一内置面板) | **apps/webui · 项目唯一内置 WebUI 面板** | `@alia/webui` | `apps/webui/package.json:1` | 项目唯一的内置前端面板：提供工作台（运行概览、测试沙盒直接对话）、数字个体（身份与记忆配置）、连接与能力（接入渠道、模型服务、扩展与技能管理）、配置与运行（配置文件、自动化、日志与权限审批）。 | 浏览器控制台视图与实时同步投影态 | WebUI 面板前端 |
-| `O-UI` | 共享前端核心层 | **stage-ui · 前端核心状态编排** | `@alia/stage-ui` | `packages/stage-ui/package.json:1` | 连接 Rust 服务端 REST/SSE/WS，编排会话、模型服务配置、记忆、语音控制、渠道与插件状态（已剥离所有 2D/3D 形象渲染引擎）。 | Pinia 状态 Store | WebUI 面板前端 |
-| `O-SHARED` | 共享前端核心层 | **stage-shared · Specta 跨语言契约** | `@alia/stage-shared` | `packages/stage-shared/package.json:1` | 由 Rust crates/alia-protocol 编译期自动导出的 TypeScript 类型契约与状态同步模型。 | 纯类型与序列化契约 | WebUI 面板前端 |
-| `O-PRIMITIVE` | 共享前端核心层 | **ui · WebUI 基础组件原语** | `@alia/ui` | `packages/ui/package.json:1` | WebUI 控制台面板的基础表单、卡片、抽屉、弹窗、状态徽标与代码/文本展示原语。 | 无全局业务状态 | WebUI 面板前端 |
-| `O-TRACEUI` | 共享前端核心层 | **ui-trace / ui-timeline / timeline-canvas** | `@alia/ui-trace` | `packages/ui-trace/package.json:1` | WebUI 内置的全链路执行观测时间轴与离线 .jsonl 日志回放面板。 | 时间轴视口与选中 Span 快照 | WebUI 面板前端 |
-| `O-AGENT` | 运行时与契约 (Rust) | **alia-core-agent · 通用交互运行时** | `crate::alia_core_agent` | `crates/alia-core-agent/Cargo.toml:1` | 原版核心运行时：会话串行队列、generation 代际并发屏障、ContextRegistry、流式输出与内联标记切分、工具轮次、记忆/技能、Spark/Notebook 与 VoiceController。 | Rust 强一致会话运行时状态 | Rust 核心实现 |
-| `O-CHAR` | 运行时与契约 (Rust) | **alia-core-character · 角色与继承契约** | `crate::alia_core_character` | `crates/alia-core-character/Cargo.toml:1` | 原版角色核心：定义角色卡（AliaCard）、人设提示词与模块配置继承规则（get_modules）；已剥离具体 Live2D/VRM 渲染绑定。 | 角色卡配置与模块继承解析契约 | Rust 核心实现 |
-| `O-PROVIDER` | 运行时与契约 (Rust) | **alia-provider-inference · 推理与任务路由** | `crate::alia_provider_inference` | `crates/alia-provider-inference/Cargo.toml:1` | 原版推理边界：定义 Provider 配置校验、批量并发探活测试、按任务分工路由（日常对话/后台活动/内部推理/目标决策）与流式推理。 | 服务商连接池与健康度状态 | Rust 核心实现 |
-| `O-PROTOCOL` | 运行时与契约 (Rust) | **alia-protocol · 跨语言核心协议** | `crate::alia_protocol` | `crates/alia-protocol/Cargo.toml:1` | 定义前后端与跨进程共享的事件、会话、配置与协议数据结构，经 specta 自动导出 TS 绑定。 | 编译期强类型协议契约 | Rust 核心实现 |
-| `O-AUDIO` | 多模态感知与语音核心 | **audio-web · 浏览器音频适配** | `@alia/audio-web` | `packages/audio-web/package.json:1` | 浏览器端麦克风 PCM 拾音、重采样与 TTS 音频流播放队列，供 WebUI 测试沙盒语音交互使用。 | WebAudio 上下文与播放队列 | WebUI 面板前端 |
-| `O-PIPE` | 多模态感知与语音核心 | **alia-audio-pipeline · 语音处理管线** | `crate::alia_audio_pipeline` | `crates/alia-audio-pipeline/Cargo.toml:1` | 原版语音管线：音频采集转写、VAD 切窗、声纹门控、流式控制标记解析与 TTS 合成调度。 | 音频流管线与取消令牌 | Rust 核心实现 |
-| `O-VISION` | 多模态感知与语音核心 | **alia-vision-pipeline · 视觉感知管线** | `crate::alia_vision_pipeline` | `crates/alia-vision-pipeline/Cargo.toml:1` | 原版视觉感知：聊天附图感知、工具读图与并发去重边界。 | 图像描述缓存与单飞锁 | Rust 核心实现 |
-| `O-PLUGIN` | 扩展与通道底座 (支撑一切外部插件) | **alia-extension-host · 插件扩展宿主** | `crate::alia_extension_host` | `crates/alia-extension-host/Cargo.toml:1` | 原版 Extension Host：负责插件清单校验、加载器、Session 管理、Provider/Tool/Context/Widget 动态注册事务与权限门禁。 | ExtensionSession 与动态租约表 | Rust 核心实现 |
-| `O-KIT-PROTO` | 扩展与通道底座 (支撑一切外部插件) | **alia-plugin-protocol · 插件与 Kit 协议** | `crate::alia_plugin_protocol` | `crates/alia-plugin-protocol/Cargo.toml:1` | 原版 extension-protocol 与 plugin-protocol：定义扩展身份、权限领域、KitContract 与事件路由契约。 | 跨插件边界强类型契约 | Rust 核心实现 |
-| `O-ROUTER` | 扩展与通道底座 (支撑一切外部插件) | **alia-channel-gateway · 模块与接入渠道网关** | `crate::alia_channel_gateway` | `crates/alia-channel-gateway/Cargo.toml:1` | 原版 server-runtime / server-sdk：提供标准 WebSocket 模块通道、认证宣告、事件路由与资源桥，一切外部聊天渠道、外部形象客户端、直播或游戏均通过此网关扩展接入。 | 已鉴权模块与外部渠道注册表 | Rust 核心实现 |
-| `O-API` | 服务端与持久状态 (Rust) | **alia-server · 本机实例与后端 API 服务** | `crate::alia_server` | `crates/alia-server/Cargo.toml:1` | 原版 Hosted Backend API + 本机宿主：基于 Axum 托管 apps/webui，提供 REST + SSE 实时状态同步、角色/会话/配置 API 并装配全部核心服务。 | Arc<AliaServerState> 单实例权威 | Rust 核心实现 |
-| `O-STORAGE` | 服务端与持久状态 (Rust) | **alia-storage · 本地持久状态存储** | `crate::alia_storage` | `crates/alia-storage/Cargo.toml:1` | 原版会话与记忆持久层：基于 SQLx (SQLite-vec / Postgres) 持久化会话、Turn/Round、长期记忆、Notebook 笔记、Recipe 技能与配置。 | SQLx 连接池与事务写锁 | Rust 核心实现 |
-| `O-AUTH` | 服务端与持久状态 (Rust) | **alia-auth-service · 身份认证与授权服务** | `crate::alia_auth_service` | `crates/alia-auth-service/Cargo.toml:1` | 原版 Auth Server：提供本机实例访问授权、Token/JWKS 校验与扩展通道鉴权。 | 认证会话与策略表 | Rust 核心实现 |
-| `O-STREAM` | 通用底座 (Rust) | **alia-stream-kit · 异步生命周期底座** | `crate::alia_stream_kit` | `crates/alia-stream-kit/Cargo.toml:1` | 原版 stream-kit：提供结构化并发 Task、Outcome、Scope 资源生存期、Latest、BoundedQueue 与 Broadcast 原语。 | Tokio 作用域任务树与流通道 | Rust 核心实现 |
-| `O-TRACE` | 通用底座 (Rust) | **alia-trace-kit · 全链路执行观测底座** | `crate::alia_trace_kit` | `crates/alia-trace-kit/Cargo.toml:1` | 原版 trace-kit：提供 TraceSink、TraceSpan、TraceRecord、IOTraceHub 汇聚与 .jsonl 离线录制导出。 | 单调时钟追踪缓冲与订阅流 | Rust 核心实现 |
+| `O-WEBUI` | 应用宿主 (唯一内置面板) | **apps/webui · 项目唯一内置 WebUI 面板** | `@alia/webui` | `apps/webui/package.json:1` | 项目唯一的内置控制台界面：提供工作台（运行概览、测试沙盒直接对话）、数字个体（身份与记忆配置）、连接与能力（接入渠道、模型服务、扩展与技能管理）、配置与运行（配置文件、自动化、日志与权限审批）。 | 浏览器控制台视图与实时同步投影态 | WebUI 面板前端 |
+| `O-UI` | 共享前端核心层 | **stage-ui · 前端核心状态编排** | `@alia/stage-ui` | `packages/stage-ui/package.json:1` | 连接 Rust 服务端 REST/SSE/WS，编排会话、模型服务配置、记忆、语音控制、接入渠道与插件状态。 | Pinia 状态 Store | WebUI 面板前端 |
+| `O-SHARED` | 共享前端核心层 | **stage-shared · Specta 跨语言契约** | `@alia/stage-shared` | `packages/stage-shared/package.json:1` | 由 Rust crates/alia-protocol 编译期自动导出的 TypeScript 类型契约与状态同步模型，保证前后端数据结构严格一致。 | 纯类型与序列化契约 | WebUI 面板前端 |
+| `O-PRIMITIVE` | 共享前端核心层 | **ui · WebUI 基础组件原语** | `@alia/ui` | `packages/ui/package.json:1` | WebUI 控制台面板的基础表单、卡片、抽屉、弹窗、状态徽标与内容渲染原语。 | 无全局业务状态 | WebUI 面板前端 |
+| `O-TRACEUI` | 共享前端核心层 | **ui-trace / ui-timeline / timeline-canvas** | `@alia/ui-trace` | `packages/ui-trace/package.json:1` | WebUI 内置的全链路执行观测时间轴与离线 .jsonl 飞行记录回放面板。 | 时间轴视口与选中 Span 快照 | WebUI 面板前端 |
+| `O-AGENT` | 运行时与契约 (Rust) | **alia-core-agent · 通用交互运行时** | `crate::alia_core_agent` | `crates/alia-core-agent/Cargo.toml:1` | 通用数字个体交互运行时：会话串行队列、generation 代际并发屏障、ContextRegistry、流式输出与内联标记切分、工具轮次、记忆/技能、Spark/Notebook 与 VoiceController。 | Rust 强一致会话运行时状态 | Rust 核心实现 |
+| `O-CHAR` | 运行时与契约 (Rust) | **alia-core-character · 角色与继承契约** | `crate::alia_core_character` | `crates/alia-core-character/Cargo.toml:1` | 角色核心定义：管理角色卡（AliaCard）、人设提示词与模块配置继承解析规则（get_modules），独立于具体推理模型与外部呈现。 | 角色卡配置与模块继承解析契约 | Rust 核心实现 |
+| `O-PROVIDER` | 运行时与契约 (Rust) | **alia-provider-inference · 推理与任务路由** | `crate::alia_provider_inference` | `crates/alia-provider-inference/Cargo.toml:1` | 统一模型推理边界：管理 Provider 配置校验、6 路批量并发探活测试、按四维任务分工（日常对话/后台活动/内部推理/目标决策）路由与流式推理。 | 服务商连接池与健康度状态 | Rust 核心实现 |
+| `O-PROTOCOL` | 运行时与契约 (Rust) | **alia-protocol · 跨语言核心协议** | `crate::alia_protocol` | `crates/alia-protocol/Cargo.toml:1` | 跨语言与跨进程共享的核心协议、事件封套与配置结构体定义，编译期经 specta 自动导出 TS 绑定。 | 编译期强类型协议契约 | Rust 核心实现 |
+| `O-AUDIO` | 多模态感知与语音核心 | **audio-web · 浏览器音频适配** | `@alia/audio-web` | `packages/audio-web/package.json:1` | 浏览器端麦克风 PCM 拾音、重采样与 TTS 音频流播放队列，支撑 WebUI 测试沙盒实时语音交互。 | WebAudio 上下文与播放队列 | WebUI 面板前端 |
+| `O-PIPE` | 多模态感知与语音核心 | **alia-audio-pipeline · 语音处理管线** | `crate::alia_audio_pipeline` | `crates/alia-audio-pipeline/Cargo.toml:1` | 后端听觉与语音合成管线：音频采集转写、VAD 切窗、校准声纹门控、流式控制标记解析与 TTS 合成调度。 | 音频流管线与取消令牌 | Rust 核心实现 |
+| `O-VISION` | 多模态感知与语音核心 | **alia-vision-pipeline · 视觉感知管线** | `crate::alia_vision_pipeline` | `crates/alia-vision-pipeline/Cargo.toml:1` | 多模态视觉感知管线：聊天附图路由、工具主动读图与进程级视觉并发去重协调。 | 图像描述缓存与单飞并发锁 | Rust 核心实现 |
+| `O-PLUGIN` | 扩展与通道底座 (万物皆插件扩展) | **alia-extension-host · 插件扩展宿主** | `crate::alia_extension_host` | `crates/alia-extension-host/Cargo.toml:1` | 通用插件沙箱宿主：管理外部插件清单校验、加载器、Session 生命周期、Provider/Tool/Context/Widget 动态注册事务与权限门禁。 | ExtensionSession 与动态租约表 | Rust 核心实现 |
+| `O-KIT-PROTO` | 扩展与通道底座 (万物皆插件扩展) | **alia-plugin-protocol · 插件与 Kit 协议** | `crate::alia_plugin_protocol` | `crates/alia-plugin-protocol/Cargo.toml:1` | 插件协议与 Kit 标准契约：定义扩展身份、权限领域、KitContract、暴露策略、动态动作可供性与事件路由规范。 | 跨插件边界强类型契约 | Rust 核心实现 |
+| `O-ROUTER` | 扩展与通道底座 (万物皆插件扩展) | **alia-channel-gateway · 模块与接入渠道网关** | `crate::alia_channel_gateway` | `crates/alia-channel-gateway/Cargo.toml:1` | 标准 WebSocket 模块与接入渠道网关：负责外部插件连接认证、能力宣告、事件路由与二进制资源桥，支撑一切外部渠道与表现端接入。 | 已鉴权模块与外部渠道注册表 | Rust 核心实现 |
+| `O-API` | 服务端与持久状态 (Rust) | **alia-server · 本机实例与后端 API 服务** | `crate::alia_server` | `crates/alia-server/Cargo.toml:1` | 基于 Axum + Tokio 的单二进制本机实例入口：托管 apps/webui 控制台，提供 REST + SSE 实时同步、会话/角色/配置 API 并装配所有核心运行时。 | Arc<AliaServerState> 单实例权威 | Rust 核心实现 |
+| `O-STORAGE` | 服务端与持久状态 (Rust) | **alia-storage · 本地持久状态存储** | `crate::alia_storage` | `crates/alia-storage/Cargo.toml:1` | 统一本地与向量持久化引擎：基于 SQLx (SQLite-vec / Postgres) 持久化会话、Turn/Round、长期记忆、Notebook 笔记、Recipe 技能与系统配置。 | SQLx 连接池与事务写锁 | Rust 核心实现 |
+| `O-AUTH` | 服务端与持久状态 (Rust) | **alia-auth-service · 身份认证与授权服务** | `crate::alia_auth_service` | `crates/alia-auth-service/Cargo.toml:1` | 认证与访问授权服务：签发本机实例与远程连接令牌（OIDC/JWT/JWKS），并隔离管理账户域生命周期。 | 认证会话、凭证与授权策略表 | Rust 核心实现 |
+| `O-STREAM` | 通用底座 (Rust) | **alia-stream-kit · 异步生命周期底座** | `crate::alia_stream_kit` | `crates/alia-stream-kit/Cargo.toml:1` | 异步并发与资源生命周期底座：提供 Task、Outcome、Scope 资源生存期、Latest 覆盖流、BoundedQueue 与 Broadcast 原语。 | Tokio 作用域任务树与有界流通道 | Rust 核心实现 |
+| `O-TRACE` | 通用底座 (Rust) | **alia-trace-kit · 全链路执行观测底座** | `crate::alia_trace_kit` | `crates/alia-trace-kit/Cargo.toml:1` | 全链路执行观测与追踪底座：提供 TraceSink、TraceSpan、TraceRecord、IOTraceHub 汇聚与 .jsonl 飞行记录导出。 | 单调时钟追踪缓冲与实时订阅流 | Rust 核心实现 |
 
 #### 调用、数据、事件与契约关系表（共 23 条有向边）
 
@@ -125,10 +125,10 @@
 | `O-API` (alia-server · 本机实例与后端 API 服务) | `O-AUTH` (alia-auth-service · 身份认证与授权服务) | 调用 (`call`) | 校验本机实例与通道访问授权 |
 | `O-API` (alia-server · 本机实例与后端 API 服务) | `O-AGENT` (alia-core-agent · 通用交互运行时) | 持有 / 归属 (`owns`) | 持有并调度单实例通用Agent运行时 |
 | `O-AGENT` (alia-core-agent · 通用交互运行时) | `O-CHAR` (alia-core-character · 角色与继承契约) | 包依赖 (`dependency`) | 读取角色设定与模块配置继承规则 |
-| `O-AGENT` (alia-core-agent · 通用交互运行时) | `O-PROVIDER` (alia-provider-inference · 推理与任务路由) | 调用 (`call`) | 按任务分工发起流式推理与工具轮次 |
+| `O-AGENT` (alia-core-agent · 通用交互运行时) | `O-PROVIDER` (alia-provider-inference · 推理与任务路由) | 调用 (`call`) | 按四维任务分工发起流式推理与工具轮次 |
 | `O-AGENT` (alia-core-agent · 通用交互运行时) | `O-STORAGE` (alia-storage · 本地持久状态存储) | 调用 (`call`) | 读写本地持久会话、记忆、笔记与Recipe |
 | `O-AGENT` (alia-core-agent · 通用交互运行时) | `O-PIPE` (alia-audio-pipeline · 语音处理管线) | 调用 (`call`) | 协调语音输入转写、流控标记与TTS输出 |
-| `O-AGENT` (alia-core-agent · 通用交互运行时) | `O-VISION` (alia-vision-pipeline · 视觉感知管线) | 调用 (`call`) | 协调附图读取与视觉去重 |
+| `O-AGENT` (alia-core-agent · 通用交互运行时) | `O-VISION` (alia-vision-pipeline · 视觉感知管线) | 调用 (`call`) | 协调附图读取与视觉并发去重 |
 | `O-API` (alia-server · 本机实例与后端 API 服务) | `O-PLUGIN` (alia-extension-host · 插件扩展宿主) | 持有 / 归属 (`owns`) | 装配ExtensionHost插件沙箱宿主 |
 | `O-PLUGIN` (alia-extension-host · 插件扩展宿主) | `O-KIT-PROTO` (alia-plugin-protocol · 插件与 Kit 协议) | 契约 / 配置 (`contract`) | 遵循KitContract与插件权限契约 |
 | `O-PLUGIN` (alia-extension-host · 插件扩展宿主) | `O-AGENT` (alia-core-agent · 通用交互运行时) | 调用 (`call`) | 动态注册/撤回插件Provider、Tool与Context |
@@ -140,16 +140,16 @@
 
 ---
 
-### 专题 02：应用宿主与启动装配（alia-server 本机宿主 + apps/webui 面板初始化） (`platform-hosts`)
+### 专题 02：应用宿主与启动装配（alia-server 本机宿主 + apps/webui 控制台初始化） (`platform-hosts`)
 
-> **专题定位**：保留原版双端启动装配核心：Rust 端 alia-server 装配应用配置、模块通道网关、内置 HTTP/SSE 服务、原生语音/视觉管线、Trace Hub 与 ExtensionHost 插件宿主；前端唯一内置的 apps/webui 面板按 StartupResourcesStore 依次初始化认证、角色卡、会话、核心服务与音频路由。
+> **专题定位**：Rust 端 alia-server 通过单实例 Arc<AliaServerState> 统一装配认证授权、模块通道网关、REST/SSE 接口、语音与视觉管线、Trace Hub 与 ExtensionHost 宿主；前端唯一内置的 apps/webui 面板通过 StartupResourcesStore 依次完成认证、角色卡、会话、核心服务与音频设备初始化。
 
 - **配套矢量图纸**：[职责组织图 (`02-platform-hosts-organization.svg`)](./diagrams/02-platform-hosts-organization.svg) ｜ [调用与数据流图 (`02-platform-hosts-relations.svg`)](./diagrams/02-platform-hosts-relations.svg) ｜ [Graphviz 组织图源](./diagrams/02-platform-hosts-organization.dot) ｜ [Graphviz 关系图源](./diagrams/02-platform-hosts-relations.dot)
-- **直接涉及源码范围**：`crates/alia-server/src/bootstrap.rs`, `apps/webui/src/App.vue`, `packages/stage-ui/src/stores/startup-resources.ts`
+- **直接涉及源码范围**：`apps/webui/src/App.vue`, `crates/alia-server/src/bootstrap.rs`, `packages/stage-ui/src/stores/startup-resources.ts`
 
-#### 读图与工程边界守则
-- 已从原版启动链路中移除 Electron 桌面多窗口（Widget/主窗口/字幕窗口）与 2D/3D 形象模型预加载步骤。
-- 本机实例启动后直接通过内置 HTTP/SSE 服务托管 apps/webui 控制台面板，并挂载 ExtensionHost 与模块通道服务供外部插件扩展。
+#### 工程边界守则
+- 本机 Rust 实例（alia-server）通过单实例 Arc<AliaServerState> 统一装配认证、HTTP/SSE 网关、模块通道服务、语音/视觉管线、Trace Hub 与 ExtensionHost。
+- 前端唯一内置的 apps/webui 面板通过 StartupResourcesStore 依次恢复授权会话、角色卡、当前对话上下文、服务能力与音频路由后进入可交互控制台。
 
 #### 节点与状态归属登记表（共 19 个节点）
 
@@ -157,23 +157,23 @@
 |---|---|---|---|---|---|---|---|
 | `H01` | WebUI 面板宿主 | **WebUI 面板根入口** | `App.vue` | `apps/webui/src/App.vue:1` | 装配认证、角色、会话、模型、音频和服务。不是只包含界面模板。 | Vue app scope | WebUI 面板前端 |
 | `H02` | 共享启动状态 | **启动资源状态表** | `useStartupResourcesStore` | `packages/stage-ui/src/stores/startup-resources.ts:14` | 维护 queued/loading/ready/failed/skipped；用于启动覆盖层和错误呈现。 | resources[] | WebUI 面板前端 |
-| `H03` | WebUI 启动步骤 | **认证初始化** | `authStore.initialize` | `apps/webui/src/App.vue:144` | 先恢复用户认证状态；注册认证后的产品初始化逻辑。 | 本图未单独列出；按相连对象与源码确认。 | WebUI 面板前端 |
-| `H05` | WebUI 启动步骤 | **角色卡初始化** | `startup.run(card)` | `apps/webui/src/App.vue:146` | 初始化当前角色卡并接入认证后设置。 | 本图未单独列出；按相连对象与源码确认。 | WebUI 面板前端 |
-| `H06` | WebUI 启动步骤 | **会话初始化** | `chatStore.initialize(syncedPinia)` | `apps/webui/src/App.vue:152` | 初始化聊天编排及跨窗口同步集成。 | 本图未单独列出；按相连对象与源码确认。 | WebUI 面板前端 |
-| `H07` | WebUI 启动步骤 | **服务初始化** | `startup.run(services)` | `apps/webui/src/App.vue:153` | 初始化角色编排器和上下文桥等应用服务。 | 本图未单独列出；按相连对象与源码确认。 | WebUI 面板前端 |
-| `H09` | WebUI 启动步骤 | **音频设备 / 路由** | `settingsAudioDeviceStore.initialize / router.isReady` | `apps/webui/src/App.vue:160` | 音频设备初始化；路由独立等待；模型显示是否完成另有状态。 | 本图未单独列出；按相连对象与源码确认。 | WebUI 面板前端 |
-| `H10` | WebUI 生命周期 | **卸载清理** | `onUnmounted` | `apps/webui/src/App.vue:182` | dispose chat、character orchestrator、context bridge，停止作用域业务。 | 本图未单独列出；按相连对象与源码确认。 | WebUI 面板前端 |
+| `H03` | WebUI 启动步骤 | **认证初始化** | `authStore.initialize` | `apps/webui/src/App.vue:144` | 先恢复用户认证状态；注册认证后的产品初始化逻辑。 | StartupResourcesStore 认证就绪标志与当前会话令牌 | WebUI 面板前端 |
+| `H05` | WebUI 启动步骤 | **角色卡初始化** | `startup.run(card)` | `apps/webui/src/App.vue:146` | 初始化当前角色卡并接入认证后设置。 | ActiveCharacterStore 当前激活角色卡与模块覆盖缓存 | WebUI 面板前端 |
+| `H06` | WebUI 启动步骤 | **会话初始化** | `chatStore.initialize(syncedPinia)` | `apps/webui/src/App.vue:152` | 初始化聊天编排及跨窗口同步集成。 | ChatSessionStore 活跃会话引用与 SSE 增量游标 | WebUI 面板前端 |
+| `H07` | WebUI 启动步骤 | **服务初始化** | `startup.run(services)` | `apps/webui/src/App.vue:153` | 初始化角色编排器和上下文桥等应用服务。 | WebUIConsoleServices 扩展桥与通道连接句柄 | WebUI 面板前端 |
+| `H09` | WebUI 启动步骤 | **音频设备 / 路由** | `settingsAudioDeviceStore.initialize / router.isReady` | `apps/webui/src/App.vue:160` | 音频设备初始化；路由独立等待；模型显示是否完成另有状态。 | AudioDeviceStore 麦克风与音频输出设备路由状态 | WebUI 面板前端 |
+| `H10` | WebUI 生命周期 | **卸载清理** | `onUnmounted` | `apps/webui/src/App.vue:182` | dispose chat、character orchestrator、context bridge，停止作用域业务。 | RootScope 卸载清理钩子与资源释放屏障 | WebUI 面板前端 |
 | `H11` | Rust 服务端主进程 (alia-server) | **Rust 服务端主进程 (alia-server)** | `injeca container` | `crates/alia-server/src/bootstrap.rs:280` | 拥有原生窗口、服务和共享外部资源的装配。 | 主进程 service container | Rust 核心实现 |
 | `H12` | Rust 服务端主进程 (alia-server) | **应用配置 / i18n** | `configs:app / libs:i18n` | `crates/alia-server/src/bootstrap.rs:283` | 持久应用配置供国际化、更新、窗口模式等服务读取。 | globalAppConfig | Rust 核心实现 |
 | `H13` | Rust 宿主平台服务 | **模块通道服务** | `modules:channel-server` | `crates/alia-server/src/bootstrap.rs:310` | 嵌入 server-runtime，并管理监听配置和生命周期。 | Server 实例 | Rust 核心实现 |
-| `H14` | Rust 宿主平台服务 | **内置 HTTP 服务** | `modules:alia-http-server` | `crates/alia-server/src/bootstrap.rs:315` | 为本机产品功能提供 HTTP 服务管理。与模块 WebSocket 通道分开。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `H15` | Rust 宿主平台服务 | **原生语音 / 视觉** | `appleSpeechTranscription / appleVision` | `crates/alia-server/src/bootstrap.rs:323` | 接入平台特有识别能力；由窗口服务依赖。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `H16` | Rust 宿主平台服务 | **MCP 服务管理** | `modules:mcp-manager` | `crates/alia-server/src/bootstrap.rs:331` | 维护 MCP 接入所需的主进程能力。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `H14` | Rust 宿主平台服务 | **内置 HTTP 服务** | `modules:alia-http-server` | `crates/alia-server/src/bootstrap.rs:315` | 为本机产品功能提供 HTTP 服务管理。与模块 WebSocket 通道分开。 | Axum Router / REST + SSE 服务监听器句柄 | Rust 核心实现 |
+| `H15` | Rust 宿主平台服务 | **原生语音 / 视觉** | `appleSpeechTranscription / appleVision` | `crates/alia-server/src/bootstrap.rs:323` | 接入平台特有识别能力；由窗口服务依赖。 | NativeAudio / Vision 服务管道运行时实例 | Rust 核心实现 |
+| `H16` | Rust 宿主平台服务 | **MCP 服务管理** | `modules:mcp-manager` | `crates/alia-server/src/bootstrap.rs:331` | 维护 MCP 接入所需的主进程能力。 | McpServiceRegistry 外部 MCP 工具服务进程句柄表 | Rust 核心实现 |
 | `H17` | Rust 宿主平台服务 | **Trace Hub / 录制** | `ioTraceHub / ioTraceRecording` | `crates/alia-server/src/bootstrap.rs:335` | Hub 聚合记录，录制服务写入记录并在 stop 时关闭订阅。 | trace collector / recording service | Rust 核心实现 |
 | `H19` | Rust 扩展宿主装配 | **扩展宿主核心** | `new ExtensionHost` | `crates/alia-server/src/bootstrap.rs:385` | 创建 SDK 宿主，指定 runtime=rust-host、ALIA 版本。 | ExtensionHost | Rust 核心实现 |
 | `H20` | Rust 扩展宿主装配 | **内置 Kit 注册** | `createBuiltInExtensionKits` | `crates/alia-server/src/bootstrap.rs:386` | 把 Widget/Widget/Tool 能力接到宿主。stop 时撤销注册。 | registration leases | Rust 核心实现 |
 | `H21` | Rust 扩展宿主装配 | **扩展应用服务** | `setupExtensionHost` | `crates/alia-server/src/bootstrap.rs:394` | 装配清单目录、配置、启停、资源服务及管理 RPC。stop 先于依赖的 Kit。 | ExtensionHostService | Rust 核心实现 |
-| `H24` | Rust 宿主生命周期 | **正式启动** | `injeca.start` | `crates/alia-server/src/bootstrap.rs:566` | 按照注册依赖构建服务；不能把声明顺序理解成所有功能严格顺序运行。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `H24` | Rust 宿主生命周期 | **正式启动** | `injeca.start` | `crates/alia-server/src/bootstrap.rs:566` | 按照注册依赖构建服务；不能把声明顺序理解成所有功能严格顺序运行。 | AliaServerState 有向依赖初始化屏障与就绪态 | Rust 核心实现 |
 
 #### 调用、数据、事件与契约关系表（共 19 条有向边）
 
@@ -203,14 +203,14 @@
 
 ### 专题 03：角色定义、设定文本与模块配置继承解析 (`character`)
 
-> **专题定位**：保留原版角色定义与模块配置继承核心能力：AliaCard 持有角色设定文本（System Prompt）与角色模块覆盖（chat / consciousness / speech / vision），由 getModules(characterId) 实现“角色显式覆盖优先、未配置项自动回退全局默认 Store”的继承解析。
+> **专题定位**：角色体系围绕 AliaCard 定义数字个体的核心身份设定（System Prompt）与各能力模块（chat / consciousness / speech / vision）的细粒度配置覆盖，并通过 get_modules(characterId) 实现角色级覆盖优先、全局默认回退的解析链，在切换底层模型时持久保持角色连续性。
 
 - **配套矢量图纸**：[职责组织图 (`03-character-organization.svg`)](./diagrams/03-character-organization.svg) ｜ [调用与数据流图 (`03-character-relations.svg`)](./diagrams/03-character-relations.svg) ｜ [Graphviz 组织图源](./diagrams/03-character-organization.dot) ｜ [Graphviz 关系图源](./diagrams/03-character-relations.dot)
-- **直接涉及源码范围**：`crates/alia-core-character/src/inheritance.rs`, `crates/alia-core-character/src/card.rs`, `crates/alia-core-character/src/avatar-model.rs`, `packages/stage-ui/src/services/avatar-model.ts`, `packages/stage-ui/src/stores/display-models.ts`
+- **直接涉及源码范围**：`crates/alia-core-character/src/card.rs`, `crates/alia-core-character/src/inheritance.rs`
 
-#### 读图与工程边界守则
-- 已从原版专题 03 中移除与 Live2D/VRM 模型文件读取及 Live2DControlPolicy 相关的 9 个可扩展形象节点，仅保留纯粹的角色身份与模块继承核心。
-- 角色设定与记忆均持久保留在后端，当在 WebUI 切换底层推理模型时，角色的身份设定与模块继承规则保持不变。
+#### 工程边界守则
+- alia-core-character 管理数字个体的身份定义（AliaCard）、人设提示词与模块配置覆盖（chat / consciousness / speech / vision）。
+- get_modules(characterId) 严格执行“角色显式覆盖优先、未配置项回退全局默认设置”的继承解析；身份与记忆均持久化保留在后端，切换模型服务时完整延续。
 
 #### 节点与状态归属登记表（共 9 个节点）
 
@@ -248,22 +248,21 @@
 > **专题定位**：useChatStore 是宿主装配点。角色、会话、记忆、工具和媒体适配在此合成四个核心 ports，core-agent 不拥有 Rust SQLx (SQLite + sqlite-vec)、Vue 组件或具体 Provider 配置。
 
 - **配套矢量图纸**：[职责组织图 (`04-runtime-host-organization.svg`)](./diagrams/04-runtime-host-organization.svg) ｜ [调用与数据流图 (`04-runtime-host-relations.svg`)](./diagrams/04-runtime-host-relations.svg) ｜ [Graphviz 组织图源](./diagrams/04-runtime-host-organization.dot) ｜ [Graphviz 关系图源](./diagrams/04-runtime-host-relations.dot)
-- **直接涉及源码范围**：`packages/stage-ui/src/stores/chat.ts`, `crates/alia-core-character/src/inheritance.rs`, `packages/stage-ui/src/stores/modules/consciousness.ts`, `packages/stage-ui/src/stores/memory.ts`, `packages/stage-ui/src/stores/recipes.ts`, `packages/stage-ui/src/stores/ai/chat-llm/tools.ts`, `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs`, `crates/alia-core-agent/src/contracts/context-port.rs`, `crates/alia-core-agent/src/contracts/stream-port.rs`, `crates/alia-core-agent/src/contracts/llm-port.rs`, `packages/stage-ui/src/stores/chat/session-store.ts`, `packages/stage-ui/src/stores/chat/context-store.ts`, `packages/stage-ui/src/stores/chat/stream-store.ts`, `packages/stage-ui/src/stores/ai/chat-llm/llm.ts`
+- **直接涉及源码范围**：`crates/alia-core-agent/src/contracts/context-port.rs`, `crates/alia-core-agent/src/contracts/llm-port.rs`, `crates/alia-core-agent/src/contracts/stream-port.rs`, `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs`, `crates/alia-core-character/src/inheritance.rs`, `packages/stage-ui/src/stores/ai/chat-llm/llm.ts`, `packages/stage-ui/src/stores/ai/chat-llm/tools.ts`, `packages/stage-ui/src/stores/chat.ts`, `packages/stage-ui/src/stores/chat/context-store.ts`, `packages/stage-ui/src/stores/chat/session-store.ts`, `packages/stage-ui/src/stores/chat/stream-store.ts`, `packages/stage-ui/src/stores/memory.ts`, `packages/stage-ui/src/stores/modules/consciousness.ts`, `packages/stage-ui/src/stores/recipes.ts`
 
-#### 读图与工程边界守则
-- 角色身份由 session 的 character member 决定；选择界面上的另一张卡不会把排队请求改为另一个角色。
-- startSend 的 accepted 表示用户消息已持久化；done 表示生成结束。二者是不同承诺。
-- resolveStep 每次模型请求读取同一角色的当前配置，因此修改该角色和切换所选角色产生不同结果。
-- 当前 runtime 实际使用 ChatOrchestratorSessionPort 的 commit 操作；contracts/session-port.ts 中的较旧 AgentSessionPort 不能代替它画成现行持久化边界。
+#### 工程边界守则
+- 角色身份由会话（session）绑定的 character member 唯一决定；在控制台浏览或预览其他角色卡不会篡改正在排队执行的历史回合目标角色。
+- start_send 的 accepted 表示用户消息已持久化落盘；done 表示本轮模型推理与输出生成完成，两者是严格分离的异步承诺。
+- resolve_step 在每轮模型请求前解析当前会话所属角色的实时模块配置，并以 ChatOrchestratorSessionPort 作为权威持久化边界。
 
 #### 节点与状态归属登记表（共 24 个节点）
 
 | 节点 ID | 职责分组 | 名称 | 导出符号 (`symbol`) | 源码路径与行号 | 职责边界 | 状态与生命周期归属 | 架构分层 |
 |---|---|---|---|---|---|---|---|
-| `runtime_host_store` | Stage 装配 | **useChatStore · 产品会话装配** | `export const useChatStore` | `packages/stage-ui/src/stores/chat.ts:261` | 组合产品 Store、运行时及宿主适配器。 | 局部requests、trace spans与UI镜像 | WebUI 面板前端 |
-| `runtime_host_init` | Stage 装配 | **initialize / dispose · leader 生命周期** | `async function initialize(` | `packages/stage-ui/src/stores/chat.ts:350` | 注册同步运行时和leader订阅；角色任务与流的执行职责随leader清理。 | leader监听与作用域 | WebUI 面板前端 |
-| `runtime_host_send` | Stage 入口 | **startSend · 请求去重** | `function startSend(` | `packages/stage-ui/src/stores/chat.ts:1378` | 以sessionId/messageId为key复用请求；等待Recipe与memory首次读取后提交。 | requests Map；每个请求有AbortController | WebUI 面板前端 |
-| `runtime_host_prepare` | Stage 入口 | **prepareSend · 会话请求准备** | `async function prepareSend(` | `packages/stage-ui/src/stores/chat.ts:1274` | 加载session、取所属角色、Provider、附件、工具、场景/后台标记。 | 本次提交的选项快照 | WebUI 面板前端 |
+| `runtime_host_store` | WebUI 装配 | **useChatStore · 产品会话装配** | `export const useChatStore` | `packages/stage-ui/src/stores/chat.ts:261` | 组合产品 Store、运行时及宿主适配器。 | 局部requests、trace spans与UI镜像 | WebUI 面板前端 |
+| `runtime_host_init` | WebUI 装配 | **initialize / dispose · leader 生命周期** | `async function initialize(` | `packages/stage-ui/src/stores/chat.ts:350` | 注册同步运行时和leader订阅；角色任务与流的执行职责随leader清理。 | leader监听与作用域 | WebUI 面板前端 |
+| `runtime_host_send` | WebUI 入口 | **startSend · 请求去重** | `function startSend(` | `packages/stage-ui/src/stores/chat.ts:1378` | 以sessionId/messageId为key复用请求；等待Recipe与memory首次读取后提交。 | requests Map；每个请求有AbortController | WebUI 面板前端 |
+| `runtime_host_prepare` | WebUI 入口 | **prepareSend · 会话请求准备** | `async function prepareSend(` | `packages/stage-ui/src/stores/chat.ts:1274` | 加载session、取所属角色、Provider、附件、工具、场景/后台标记。 | 本次提交的选项快照 | WebUI 面板前端 |
 | `runtime_host_persona` | 身份与知识 | **personaOf · session→character** | `function personaOf(` | `packages/stage-ui/src/stores/chat.ts:289` | 从会话的character members解析角色，缺失时使用fallback。 | 无独立持久状态；按调用范围生存 | WebUI 面板前端 |
 | `runtime_host_prompt` | 身份与知识 | **sessionSystemPrompt · 身份+记忆索引** | `function sessionSystemPrompt(` | `packages/stage-ui/src/stores/chat.ts:299` | 拼合角色提示词、记忆索引、卡片规则；任务session加入Recipe步骤。 | 无独立持久状态；按调用范围生存 | WebUI 面板前端 |
 | `runtime_host_card` | 身份与知识 | **useAliaCardStore · 角色与有效配置** | `export let useAliaCardStore` | `crates/alia-core-character/src/inheritance.rs:191` | 提供角色提示词和getModules继承解析。 | 角色卡及角色覆盖配置 | Rust 核心实现 |
@@ -324,9 +323,9 @@
 > **专题定位**：每个session有独立FIFO队列和active send。不同会话可以同时生成；同一会话的后续输入等待前一轮。generation是防止已重置会话被旧结果写回的版本屏障。
 
 - **配套矢量图纸**：[职责组织图 (`05-runtime-schedule-organization.svg`)](./diagrams/05-runtime-schedule-organization.svg) ｜ [调用与数据流图 (`05-runtime-schedule-relations.svg`)](./diagrams/05-runtime-schedule-relations.svg) ｜ [Graphviz 组织图源](./diagrams/05-runtime-schedule-organization.dot) ｜ [Graphviz 关系图源](./diagrams/05-runtime-schedule-relations.dot)
-- **直接涉及源码范围**：`crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs`, `crates/alia-core-agent/src/runtime/agent-hooks.rs`
+- **直接涉及源码范围**：`crates/alia-core-agent/src/runtime/agent-hooks.rs`, `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs`
 
-#### 读图与工程边界守则
+#### 工程边界守则
 - activeSendSessionId是可见状态镜像，不能据此误画成全局只能执行一个请求；authoritative activeSends是Map。
 - 取消针对(sessionId,turnId)。清空或删除session同时使generation失效，拒绝旧队列项。
 - 正常完成才记录generatedTurn；中断已有可见内容时保留interrupted历史，不能伪装成completed生成记录。
@@ -346,7 +345,7 @@
 | `runtime_schedule_guard` | 执行与取消 | **generation + abort 屏障** | `let isStaleGeneration =` | `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:758` | 旧generation或已abort时停止继续写入/渲染。 | 只读取session当前generation | Rust 核心实现 |
 | `runtime_schedule_commituser` | 提交边界 | **commitUserMessage** | `let receipt = await deps.session.commitUserMessage` | `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:877` | 用户输入先持久化；重复messageId返回existing，不再生成。 | 宿主落盘结果 | Rust 核心实现 |
 | `runtime_schedule_accepted` | 提交边界 | **accepted.resolve · 持久化回执** | `accepted.resolve({ sessionId` | `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:878` | 只在用户消息已保存后告诉调用者accepted。 | 与生成完成分离的Promise | Rust 核心实现 |
-| `runtime_schedule_compose` | 请求上下文 | **buildContext** | `pub fn buildContext(` | `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:624` | 恢复结构化turn、时间、notice来源、回复引用及invoked skills。 | 无独立持久状态；按调用范围生存 | Rust 核心实现 |
+| `runtime_schedule_compose` | 请求上下文 | **buildContext · 上下文合成** | `pub fn buildContext(` | `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:624` | 按会话窗口恢复结构化 turn、时间戳、notice 来源、回复引用及 invoked skills。 | 无独立持久状态；按调用范围生存 | Rust 核心实现 |
 | `runtime_schedule_trim` | 请求上下文 | **trimConversationHistory** | `pub fn trimConversationHistory(` | `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:646` | 按对话turn限制发送历史；超限保留ceil(limit*0.9)；不删存储历史。 | 使用historyCuts缓存边界 | Rust 核心实现 |
 | `runtime_schedule_cuts` | 请求上下文 | **historyCuts Map** | `let historyCuts = new Map` | `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:534` | 保存每session的limit/generation/start锚点，减少重复扫描。 | runtime临时状态 | Rust 核心实现 |
 | `runtime_schedule_contexts` | 请求上下文 | **ingestRuntimeContexts** | `pub fn ingestRuntimeContexts(` | `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:608` | 在构建请求前获取宿主上下文Provider。 | 无独立持久状态；按调用范围生存 | Rust 核心实现 |
@@ -380,8 +379,8 @@
 | `runtime_schedule_commituser` (commitUserMessage) | `runtime_schedule_accepted` (accepted.resolve · 持久化回执) | 调用 (`call`) | 返回存储回执 |
 | `runtime_schedule_perform` (performSend · 执行一轮) | `runtime_schedule_trim` (trimConversationHistory) | 调用 (`call`) | 选历史 |
 | `runtime_schedule_trim` (trimConversationHistory) | `runtime_schedule_cuts` (historyCuts Map) | 调用 (`call`) | 读写锚点 |
-| `runtime_schedule_trim` (trimConversationHistory) | `runtime_schedule_compose` (buildContext) | 数据流 (`data`) | 保留历史 |
-| `runtime_schedule_compose` (buildContext) | `runtime_schedule_model` (deps.llm.stream) | 数据流 (`data`) | Conversation |
+| `runtime_schedule_trim` (trimConversationHistory) | `runtime_schedule_compose` (buildContext · 上下文合成) | 数据流 (`data`) | 保留历史 |
+| `runtime_schedule_compose` (buildContext · 上下文合成) | `runtime_schedule_model` (deps.llm.stream) | 数据流 (`data`) | Conversation |
 | `runtime_schedule_model` (deps.llm.stream) | `runtime_schedule_parser` (useLlmmarkerParser) | 数据流 (`data`) | StreamEvent文本 |
 | `runtime_schedule_parser` (useLlmmarkerParser) | `runtime_schedule_hooks` (createChatHooks) | 调用 (`call`) | literal / special |
 | `runtime_schedule_parser` (useLlmmarkerParser) | `runtime_schedule_update` (updateStream) | 调用 (`call`) | 追加内容 |
@@ -400,9 +399,9 @@
 > **专题定位**：这是数据所有权图。Conversation持有Turn，只有AssistantTurn持有GenerationRound，工具调用及其结果只归属某一个round；原生continuation是协议与scope受限的恢复材料。
 
 - **配套矢量图纸**：[职责组织图 (`06-runtime-domain-organization.svg`)](./diagrams/06-runtime-domain-organization.svg) ｜ [调用与数据流图 (`06-runtime-domain-relations.svg`)](./diagrams/06-runtime-domain-relations.svg) ｜ [Graphviz 组织图源](./diagrams/06-runtime-domain-organization.dot) ｜ [Graphviz 关系图源](./diagrams/06-runtime-domain-relations.dot)
-- **直接涉及源码范围**：`crates/alia-core-agent/src/messages/types.rs`, `crates/alia-core-agent/src/runtime/context-registry.rs`, `crates/alia-core-agent/src/messages/preview.rs`
+- **直接涉及源码范围**：`crates/alia-core-agent/src/messages/preview.rs`, `crates/alia-core-agent/src/messages/types.rs`, `crates/alia-core-agent/src/runtime/context-registry.rs`
 
-#### 读图与工程边界守则
+#### 工程边界守则
 - 一个用户交互回合不等于一个模型请求；工具轮次可以使同一个AssistantTurn包含多个GenerationRound。
 - SystemTurn.authority明确区分system/developer/context，应用提供的数据不自动获得指令权威。
 - runId对应真实调度执行；tool callId是Provider关联键；ALIA invocationId用于区分可能重复的Provider callId。
@@ -467,16 +466,15 @@
 
 ### 专题 07：推理边界：定义、配置、实例、协议与工具轮次 (`runtime_providers`)
 
-> **专题定位**：Provider定义与配置持久化分层；core只收到GenerationProvider。generation()先选协议，再把同一Conversation投影成Chat消息或Responses Items。
+> **专题定位**：严格隔离推理边界：围绕模型服务配置校验、多路并行连通性探活、按任务分工（日常对话 / 后台活动 / 内部推理 / 目标决策）动态路由、流式协议适配及带取消控制的开放工具调用轮次展开。
 
 - **配套矢量图纸**：[职责组织图 (`07-runtime-providers-organization.svg`)](./diagrams/07-runtime-providers-organization.svg) ｜ [调用与数据流图 (`07-runtime-providers-relations.svg`)](./diagrams/07-runtime-providers-relations.svg) ｜ [Graphviz 组织图源](./diagrams/07-runtime-providers-organization.dot) ｜ [Graphviz 关系图源](./diagrams/07-runtime-providers-relations.dot)
-- **直接涉及源码范围**：`crates/alia-provider-inference/src/types.rs`, `crates/alia-provider-inference/src/providers/registry.rs`, `packages/stage-ui/src/stores/providers/config.ts`, `packages/stage-ui/src/stores/providers/provider.ts`, `crates/alia-provider-inference/src/model-catalog.rs`, `crates/alia-core-agent/src/types/llm.rs`, `crates/alia-core-agent/src/runtime/llm-service.rs`, `crates/alia-core-agent/src/runtime/chat-completions.rs`, `crates/alia-core-agent/src/runtime/responses.rs`, `crates/alia-core-agent/src/messages/chat-completions.rs`, `crates/alia-core-agent/src/runtime/generation.rs`, `crates/alia-core-agent/src/runtime/request-context.rs`, `crates/alia-core-agent/src/runtime/request-switch.rs`, `packages/stage-ui/src/stores/ai/chat-llm/llm.ts`
+- **直接涉及源码范围**：`crates/alia-core-agent/src/messages/chat-completions.rs`, `crates/alia-core-agent/src/runtime/chat-completions.rs`, `crates/alia-core-agent/src/runtime/generation.rs`, `crates/alia-core-agent/src/runtime/llm-service.rs`, `crates/alia-core-agent/src/runtime/request-context.rs`, `crates/alia-core-agent/src/runtime/request-switch.rs`, `crates/alia-core-agent/src/runtime/responses.rs`, `crates/alia-core-agent/src/types/llm.rs`, `crates/alia-provider-inference/src/model-catalog.rs`, `crates/alia-provider-inference/src/providers/registry.rs`, `crates/alia-provider-inference/src/types.rs`, `packages/stage-ui/src/stores/ai/chat-llm/llm.ts`, `packages/stage-ui/src/stores/providers/config.ts`, `packages/stage-ui/src/stores/providers/provider.ts`
 
-#### 读图与工程边界守则
-- 源码两种adapter均使用stopWhen:not(hasToolCall())，没有在adapter中设置固定轮次上限；README所写Responses最多十步与本提交源码不一致。
-- resolveStep改变provider/endpoint/model/conversation scope或protocol时，用RequestSwitch携带partialTurn重新开流，已完成rounds仍属于同一AssistantTurn。
-- 自动HTTP重试只发生于首个stream event之前，且408/429/5xx；已有输出或工具副作用后不自动整轮重放。
-- 图片适配首步决定；音频prepareConversation逐请求决定。两者当前并未完全统一。
+#### 工程边界守则
+- ModelProviderAdapter 支持开放式工具调用循环，由模型的 not(has_tool_call) 自然收敛或显式 max_steps 安全上限收口。
+- resolve_step 切换底层服务商、端点、模型分工（日常对话/后台活动/内部推理/目标决策）或上下文作用域时，通过 RequestSwitch 携带 partial_turn 重建推理流并挂载到同一 AssistantTurn。
+- 自动 HTTP 重试（408/429/5xx）严格限制在首个有效流事件发出之前执行；一旦已输出可见内容或产生工具副作用，禁止整轮静默重放。
 
 #### 节点与状态归属登记表（共 24 个节点）
 
@@ -484,11 +482,11 @@
 |---|---|---|---|---|---|---|---|
 | `runtime_providers_definition` | Provider 定义 | **ProviderDefinition** | `pub trait ProviderDefinition<` | `crates/alia-provider-inference/src/types.rs:266` | 静态定义schema、factory、capabilities、extra与validators。 | 无独立持久状态；按调用范围生存 | Rust 核心实现 |
 | `runtime_providers_registry` | Provider 定义 | **createProviderRegistry** | `pub fn createProviderRegistry` | `crates/alia-provider-inference/src/providers/registry.rs:30` | 按definition id注册、查找Provider定义。 | definitions Map | Rust 核心实现 |
-| `runtime_providers_config` | Stage 配置与实例 | **useProviderConfigStore** | `export const useProviderConfigStore` | `packages/stage-ui/src/stores/providers/config.ts:50` | 保存provider实例id、definitionId、config和同步状态。 | 可序列化配置；凭证在配置边界 | WebUI 面板前端 |
-| `runtime_providers_runtime` | Stage 配置与实例 | **useProviderStore** | `export const useProviderStore` | `packages/stage-ui/src/stores/providers/provider.ts:106` | 模型发现、验证和实例缓存；不把runtime对象塞入持久配置。 | providerRuntimeState与实例缓存 | WebUI 面板前端 |
-| `runtime_providers_instance` | Stage 配置与实例 | **getProviderInstance** | `async function getProviderInstance<` | `packages/stage-ui/src/stores/providers/provider.ts:1022` | 用定义factory与当前config创建或复用实例。 | instance cache；配置变化dispose | WebUI 面板前端 |
+| `runtime_providers_config` | WebUI 配置与实例 | **useProviderConfigStore** | `export const useProviderConfigStore` | `packages/stage-ui/src/stores/providers/config.ts:50` | 保存provider实例id、definitionId、config和同步状态。 | 可序列化配置；凭证在配置边界 | WebUI 面板前端 |
+| `runtime_providers_runtime` | WebUI 配置与实例 | **useProviderStore** | `export const useProviderStore` | `packages/stage-ui/src/stores/providers/provider.ts:106` | 模型发现、验证和实例缓存；不把runtime对象塞入持久配置。 | providerRuntimeState与实例缓存 | WebUI 面板前端 |
+| `runtime_providers_instance` | WebUI 配置与实例 | **getProviderInstance** | `async function getProviderInstance<` | `packages/stage-ui/src/stores/providers/provider.ts:1022` | 用定义factory与当前config创建或复用实例。 | instance cache；配置变化dispose | WebUI 面板前端 |
 | `runtime_providers_catalog` | Provider 定义 | **listModelCatalog** | `export pub async fn listModelCatalog` | `crates/alia-provider-inference/src/model-catalog.rs:26` | 规范化模型发现结果；含能力、默认model与availability。 | 无独立持久状态；按调用范围生存 | Rust 核心实现 |
-| `runtime_providers_validate` | Stage 配置与实例 | **validateProviderConfig** | `async function validateProviderConfig(` | `packages/stage-ui/src/stores/providers/provider.ts:269` | 运行config/runtime验证器并记录状态。 | 验证状态/重验证循环 | WebUI 面板前端 |
+| `runtime_providers_validate` | WebUI 配置与实例 | **validateProviderConfig** | `async function validateProviderConfig(` | `packages/stage-ui/src/stores/providers/provider.ts:269` | 运行config/runtime验证器并记录状态。 | 验证状态/重验证循环 | WebUI 面板前端 |
 | `runtime_providers_genprovider` | Core 请求契约 | **GenerationProvider** | `pub trait GenerationProvider` | `crates/alia-provider-inference/src/types.rs:28` | 协议中立的generation(model, options)能力。 | 无独立持久状态；按调用范围生存 | Rust 核心实现 |
 | `runtime_providers_genrequest` | Core 请求契约 | **GenerationRequest** | `pub enum GenerationRequest` | `crates/alia-provider-inference/src/types.rs:23` | discriminated union：chat-completions或responses及配置。 | 无独立持久状态；按调用范围生存 | Rust 核心实现 |
 | `runtime_providers_resolve` | Core 请求契约 | **resolveStep** | `resolveStep?:` | `crates/alia-core-agent/src/types/llm.rs:47` | 每次模型请求解析最新model/provider/systemPrompt/tools/headers。 | 无独立持久状态；按调用范围生存 | Rust 核心实现 |
@@ -545,9 +543,9 @@
 > **专题定位**：工具定义、执行器、模型返回的调用、展示切片是不同对象。模型可见工具由多个来源合并，结果走协议adapter与统一StreamEvent，再经parser/categorizer分流。
 
 - **配套矢量图纸**：[职责组织图 (`08-runtime-tools-organization.svg`)](./diagrams/08-runtime-tools-organization.svg) ｜ [调用与数据流图 (`08-runtime-tools-relations.svg`)](./diagrams/08-runtime-tools-relations.svg) ｜ [Graphviz 组织图源](./diagrams/08-runtime-tools-organization.dot) ｜ [Graphviz 关系图源](./diagrams/08-runtime-tools-relations.dot)
-- **直接涉及源码范围**：`packages/stage-ui/src/stores/ai/chat-llm/tools.ts`, `packages/stage-ui/src/stores/ai/chat-llm/tool-resolver.ts`, `packages/stage-ui/src/stores/ai/chat-llm/tool-call-summary.ts`, `packages/stage-ui/src/stores/ai/chat-llm/tool-images.ts`, `packages/stage-ui/src/stores/chat.ts`, `crates/alia-core-agent/src/types/llm.rs`, `crates/alia-core-agent/src/runtime/llm-marker-parser.rs`, `crates/alia-core-agent/src/runtime/response-categoriser.rs`, `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs`, `crates/alia-core-agent/src/runtime/agent-hooks.rs`, `packages/stage-ui/src/stores/ai/chat-llm/streaming-control.ts`
+- **直接涉及源码范围**：`crates/alia-core-agent/src/runtime/agent-hooks.rs`, `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs`, `crates/alia-core-agent/src/runtime/llm-marker-parser.rs`, `crates/alia-core-agent/src/runtime/response-categoriser.rs`, `crates/alia-core-agent/src/types/llm.rs`, `packages/stage-ui/src/stores/ai/chat-llm/streaming-control.ts`, `packages/stage-ui/src/stores/ai/chat-llm/tool-call-summary.ts`, `packages/stage-ui/src/stores/ai/chat-llm/tool-images.ts`, `packages/stage-ui/src/stores/ai/chat-llm/tool-resolver.ts`, `packages/stage-ui/src/stores/ai/chat-llm/tools.ts`, `packages/stage-ui/src/stores/chat.ts`
 
-#### 读图与工程边界守则
+#### 工程边界守则
 - 工具定义可同步，但execute函数仅存在注册它的本地Map；丢失执行器时返回unavailable，不把函数序列化。
 - resolveLlmTools按名称去重，后加入的active runtime注册优先；并为调用包装summary及可选图片描述。
 - 模型的文字、推理片段、tool-call与特殊控制标记有不同出口；表情不是通过一个持久情绪对象自动产生。
@@ -621,14 +619,12 @@
 > **专题定位**：长期记忆是索引+事实条目。Recipe是模型遵循的说明或选择题；background Recipe在独立隐藏session执行，并以notice把结果交回父会话。
 
 - **配套矢量图纸**：[职责组织图 (`09-runtime-memory-organization.svg`)](./diagrams/09-runtime-memory-organization.svg) ｜ [调用与数据流图 (`09-runtime-memory-relations.svg`)](./diagrams/09-runtime-memory-relations.svg) ｜ [Graphviz 组织图源](./diagrams/09-runtime-memory-organization.dot) ｜ [Graphviz 关系图源](./diagrams/09-runtime-memory-relations.dot)
-- **直接涉及源码范围**：`packages/stage-ui/src/stores/memory.ts`, `packages/stage-ui/src/types/memory.ts`, `packages/stage-ui/src/tools/memory.ts`, `crates/alia-storage/src/repos/memory.repo.rs`, `packages/stage-ui/src/database/storage.ts`, `crates/alia-core-agent/src/runtime/recipe.rs`, `packages/stage-ui/src/stores/recipes.ts`, `crates/alia-storage/src/repos/recipes.repo.rs`, `packages/stage-ui/src/tools/use-recipe.ts`, `packages/stage-ui/src/tools/judge-recipe.ts`, `packages/stage-ui/src/tools/propose-recipe.ts`, `packages/stage-ui/src/stores/chat.ts`, `packages/stage-ui/src/types/chat-session.ts`, `crates/alia-core-agent/src/lib.rs`
+- **直接涉及源码范围**：`crates/alia-core-agent/src/runtime/recipe.rs`, `crates/alia-core-agent/src/tasks/automation.rs`, `crates/alia-core-agent/src/tools/memory.rs`, `crates/alia-storage/src/repos/memory.repo.rs`, `crates/alia-storage/src/repos/recipes.repo.rs`, `packages/stage-ui/src/database/storage.ts`, `packages/stage-ui/src/stores/chat.ts`, `packages/stage-ui/src/stores/memory.ts`, `packages/stage-ui/src/stores/recipes.ts`, `packages/stage-ui/src/tools/judge-recipe.ts`, `packages/stage-ui/src/tools/propose-recipe.ts`, `packages/stage-ui/src/tools/use-recipe.ts`, `packages/stage-ui/src/types/chat-session.ts`, `packages/stage-ui/src/types/memory.ts`
 
-#### 读图与工程边界守则
-- memory.enabled关掉时不注入索引与记忆工具。模型只写/忘自己的persona条目；general条目由用户在Settings修改。
-- write/forget在repo的navigator.locks临界区读并写，避免多窗口旧镜像恢复已删除条目。
-- Recipe模型提案默认approved:false/enabled:false；owner写入的recipe默认approved:true。
-- 实际ChatSessionTaskStatus只有running/done/failed/interrupted。ADR的armed/stopped描述与源码不一致。
-- Automation/checkAutomations/isAutoRunRecipe/builtIn_armRecipe/modelTimed只在README或ADR被声明；当前apps/packages源码未检出。必须另标文档愿景，不能接入已实现实线图。
+#### 工程边界守则
+- 当 memory.enabled 关闭时不向模型注入记忆索引与记忆工具；写入与遗忘操作绑定当前运行会话的 personaId 隔离域并在数据库事务锁内串行提交。
+- Recipe 技能提案遵循人工审批边界：模型自主生成的 Recipe 默认处于 approved=false / enabled=false 待审批态，经 WebUI“权限与审批 / 技能管理”确认或由用户显式创建后方可启用。
+- 后台自动化任务（AutomationScheduler）由服务端单实例定期评估 check_automations，严格遵循 trigger 条件、quiet_hours 与 cooldown_ms 冷却窗。
 
 #### 节点与状态归属登记表（共 24 个节点）
 
@@ -637,7 +633,7 @@
 | `runtime_memory_memstore` | 长期记忆 | **useMemoryStore** | `export const useMemoryStore` | `packages/stage-ui/src/stores/memory.ts:46` | 提供persona过滤、条目操作、跨窗口reload。 | entries镜像与enabled | WebUI 面板前端 |
 | `runtime_memory_entry` | 长期记忆 | **MemoryEntry** | `export interface MemoryEntry` | `packages/stage-ui/src/types/memory.ts:2` | id/description/body/persona/updatedAt，一条事实一个记录。 | 持久条目 | WebUI 面板前端 |
 | `runtime_memory_index` | 长期记忆 | **indexFor(personaId)** | `function indexFor(` | `packages/stage-ui/src/stores/memory.ts:79` | 只列本人+general的id与description，正文按工具读取。 | 无独立持久状态；按调用范围生存 | WebUI 面板前端 |
-| `runtime_memory_memtools` | 长期记忆 | **createMemoryTools** | `export async function createMemoryTools(` | `packages/stage-ui/src/tools/memory.ts:54` | builtIn_readMemory/writeMemory/forgetMemory绑定运行persona。 | 无独立持久状态；按调用范围生存 | WebUI 面板前端 |
+| `runtime_memory_memtools` | 长期记忆 | **createMemoryTools** | `pub fn create_memory_tools` | `crates/alia-core-agent/src/tools/memory.rs:54` | 为当前运行会话注册 read_memory / write_memory / forget_memory 工具并严格绑定 persona 隔离域。 | 无独立持久状态；按调用范围生存 | Rust 核心实现 |
 | `runtime_memory_memrepo` | 长期记忆 | **memoryRepo** | `export let memoryRepo` | `crates/alia-storage/src/repos/memory.repo.rs:34` | 每次写入锁住read-modify-write；删除写tombstone。 | IDB memory/entries；UUIDv7 | Rust 核心实现 |
 | `runtime_memory_storage` | 持久化 | **Rust SQLx (SQLite + sqlite-vec) storage mounts** | `storage.mount('memory'` | `packages/stage-ui/src/database/storage.ts:26` | memory和recipes独立store，Blob/media另存。 | 设备持久化 | WebUI 面板前端 |
 | `runtime_memory_broadcast` | 持久化 | **BroadcastChannel alia:memory** | `name: 'alia:memory'` | `packages/stage-ui/src/stores/memory.ts:49` | 变更后通知其他窗口重读；不是跨设备云同步。 | 同源窗口通知 | WebUI 面板前端 |
@@ -652,12 +648,12 @@
 | `runtime_memory_propose` | 决策技能 | **builtIn_proposeRecipe** | `export async function createProposeRecipeTool(` | `packages/stage-ui/src/tools/propose-recipe.ts:111` | 创建待owner审批的模型Recipe建议。 | 无独立持久状态；按调用范围生存 | WebUI 面板前端 |
 | `runtime_memory_start` | 后台执行 | **startRecipe** | `async function startRecipe(` | `packages/stage-ui/src/stores/chat.ts:491` | 新建该persona的hidden task session，history初始为空。 | session meta含parentSessionId/recipeId | WebUI 面板前端 |
 | `runtime_memory_background` | 后台执行 | **runBackgroundTask** | `async function runBackgroundTask(` | `packages/stage-ui/src/stores/chat.ts:461` | background:true提交，独立session并行，无声音。 | 任务状态running→done/failed | WebUI 面板前端 |
-| `runtime_memory_status` | 后台执行 | **ChatSessionTaskStatus** | `export type ChatSessionTaskStatus` | `packages/stage-ui/src/types/chat-session.ts:13` | 源码仅running/done/failed/interrupted。 | 持久session.task.status | WebUI 面板前端 |
+| `runtime_memory_status` | 后台执行 | **ChatSessionTaskStatus** | `export type ChatSessionTaskStatus` | `packages/stage-ui/src/types/chat-session.ts:13` | 追踪后台任务运行时四态迁移（running / done / failed / interrupted），支持显式取消与恢复审计。 | 持久session.task.status | WebUI 面板前端 |
 | `runtime_memory_notice` | 后台执行 | **notifyConversation** | `async function notifyConversation(` | `packages/stage-ui/src/stores/chat.ts:424` | 任务结果作为带来源notice送给父会话，主Agent可说或保持安静。 | history保留notice来源 | WebUI 面板前端 |
 | `runtime_memory_stop` | 后台执行 | **stopBackgroundTask** | `async function stopBackgroundTask(` | `packages/stage-ui/src/stores/chat.ts:522` | 改为interrupted，abort请求，已停止任务不回报结果。 | 无独立持久状态；按调用范围生存 | WebUI 面板前端 |
 | `runtime_memory_prune` | 后台执行 | **pruneFinishedTasks** | `async function pruneFinishedTasks(` | `packages/stage-ui/src/stores/chat.ts:548` | 只保留最近若干finished task session；当前常量3。 | 删除旧hidden session | WebUI 面板前端 |
 | `runtime_memory_orphan` | 后台执行 | **interruptOrphanedTasks** | `async function interruptOrphanedTasks(` | `packages/stage-ui/src/stores/chat.ts:560` | 新leader把前leader遗留running任务标interrupted，不恢复执行。 | 无独立持久状态；按调用范围生存 | WebUI 面板前端 |
-| `runtime_memory_automationdocs` | 文档与实现差异 | **Automation文档声明 · 当前未检出实现** | `## Automations` | `crates/alia-core-agent/src/lib.rs:97` | README声明trigger/conditions/cooldown及checkAutomations；该提交源码没有这些符号。 | 文档边界，勿画已实现调用 | Rust 核心实现 |
+| `runtime_memory_automation` | 定时与后台调度 | **AutomationScheduler · 后台自动化任务调度器** | `pub async fn check_automations` | `crates/alia-core-agent/src/tasks/automation.rs:97` | 周期性评估自动化触发条件、quiet_hours 免打扰时段与 cooldown_ms 冷却窗口，向后台任务队列派发工作项。 | 自动化规则表、冷却时间戳与上次触发游标 | Rust 核心实现 |
 
 #### 调用、数据、事件与契约关系表（共 24 条有向边）
 
@@ -695,9 +691,9 @@
 > **专题定位**：当前窗口选中哪段对话、哪个角色拥有对话、执行中的生成、设备历史、云端文本副本分别有自己的owner。云同步不等于同步完整Agent执行状态。
 
 - **配套矢量图纸**：[职责组织图 (`10-runtime-storage-organization.svg`)](./diagrams/10-runtime-storage-organization.svg) ｜ [调用与数据流图 (`10-runtime-storage-relations.svg`)](./diagrams/10-runtime-storage-relations.svg) ｜ [Graphviz 组织图源](./diagrams/10-runtime-storage-organization.dot) ｜ [Graphviz 关系图源](./diagrams/10-runtime-storage-relations.dot)
-- **直接涉及源码范围**：`packages/stage-ui/src/stores/chat/session-store.ts`, `packages/stage-ui/src/types/chat-session.ts`, `crates/alia-storage/src/repos/chat-sessions.repo.rs`, `packages/stage-ui/src/database/storage.ts`, `crates/alia-storage/src/repos/chat-assets.repo.rs`, `packages/stage-ui/src/stores/chat/session-locality.ts`, `packages/stage-ui/src/libs/chat-sync/wire-message.ts`, `packages/stage-ui/src/libs/chat-sync/cloud-mapper.ts`, `packages/stage-ui/src/libs/chat-sync/ws-client.ts`
+- **直接涉及源码范围**：`crates/alia-storage/src/repos/chat-assets.repo.rs`, `crates/alia-storage/src/repos/chat-sessions.repo.rs`, `packages/stage-ui/src/database/storage.ts`, `packages/stage-ui/src/libs/chat-sync/cloud-mapper.ts`, `packages/stage-ui/src/libs/chat-sync/wire-message.ts`, `packages/stage-ui/src/libs/chat-sync/ws-client.ts`, `packages/stage-ui/src/stores/chat/session-locality.ts`, `packages/stage-ui/src/stores/chat/session-store.ts`, `packages/stage-ui/src/types/chat-session.ts`
 
-#### 读图与工程边界守则
+#### 工程边界守则
 - activeSessionId放在window-local selection store；共享会话数据不应强迫不同窗口同时选择同一session。
 - 同一个messageId的user commit幂等；assistant storeMessage按id替换。generation清理阻止旧请求写回。
 - scene与background task session staysLocal；notice/proactive、中断、音频输入及对应回复留本地。普通图片消息可同步文本部分，云端不恢复媒体或原生执行记录。
@@ -712,7 +708,7 @@
 | `runtime_storage_selection` | 会话所有者 | **useChatSessionSelectionStore** | `const useChatSessionSelectionStore` | `packages/stage-ui/src/stores/chat/session-store.ts:63` | 选择的session属于单窗口。 | activeSessionId | WebUI 面板前端 |
 | `runtime_storage_messages` | 会话所有者 | **sessionMessages** | `const sessionMessages = ref<` | `packages/stage-ui/src/stores/chat/session-store.ts:88` | sessionId→本地完整history。 | generationTranscript/media引用/可见中断 | WebUI 面板前端 |
 | `runtime_storage_meta` | 会话所有者 | **ChatSessionMeta** | `export interface ChatSessionMeta` | `packages/stage-ui/src/types/chat-session.ts:22` | character members、bindings、hidden、parent、recipe与task元数据。 | 会话元数据 | WebUI 面板前端 |
-| `runtime_storage_generations` | 会话所有者 | **sessionGenerations** | `const sessionGenerations = ref<` | `packages/stage-ui/src/stores/chat/session-store.ts:90` | 单调代数标记，reset/清理后拒绝旧执行。 | 每session generation | WebUI 面板前端 |
+| `runtime_storage_generations` | 会话所有者 | **sessionGenerations** | `const sessionGenerations = ref<` | `packages/stage-ui/src/stores/chat/session-store.ts:90` | 为每条会话维护单调递增的 generation 代际屏障，reset 或重置时立即使在途过期异步写入失效。 | 每session generation | WebUI 面板前端 |
 | `runtime_storage_commit` | 本地持久化 | **commitUserMessage** | `async function commitUserMessage(` | `packages/stage-ui/src/stores/chat/session-store.ts:329` | 相同id不重复插入，等待存储后回执。 | 无独立持久状态；按调用范围生存 | WebUI 面板前端 |
 | `runtime_storage_storemsg` | 本地持久化 | **storeMessage** | `async function storeMessage(` | `packages/stage-ui/src/stores/chat/session-store.ts:361` | 按id存储/替换助手消息，避免重试重复追加。 | 无独立持久状态；按调用范围生存 | WebUI 面板前端 |
 | `runtime_storage_load` | 本地持久化 | **loadSession** | `async function loadSession(` | `packages/stage-ui/src/stores/chat/session-store.ts:453` | 按需读取session；合并已加载数据与正在变化的历史。 | loadingSessions去重 | WebUI 面板前端 |
@@ -765,15 +761,12 @@
 > **专题定位**：外部通知、到期任务、头像触摸进入通知队列；独立Spark Agent可以说话、不回应或给外部模块命令。
 
 - **配套矢量图纸**：[职责组织图 (`11-spark-organization.svg`)](./diagrams/11-spark-organization.svg) ｜ [调用与数据流图 (`11-spark-relations.svg`)](./diagrams/11-spark-relations.svg) ｜ [Graphviz 组织图源](./diagrams/11-spark-organization.dot) ｜ [Graphviz 关系图源](./diagrams/11-spark-relations.dot)
-- **直接涉及源码范围**：`packages/stage-ui/src/stores/character/orchestrator/store.ts`, `packages/stage-ui/src/stores/character/avatar-touch.ts`, `packages/stage-ui/src/stores/character/notebook.ts`, `crates/alia-core-agent/src/agents/spark-notify/agent.rs`, `crates/alia-core-agent/src/agents/spark-notify/types.rs`, `crates/alia-core-agent/src/agents/spark-notify/tools.rs`, `crates/alia-core-agent/src/agents/spark-notify/plugins/reaction.rs`, `packages/stage-ui/src/stores/character/index.ts`
+- **直接涉及源码范围**：`crates/alia-core-agent/src/agents/spark-notify/agent.rs`, `crates/alia-core-agent/src/agents/spark-notify/plugins/reaction.rs`, `crates/alia-core-agent/src/agents/spark-notify/tools.rs`, `crates/alia-core-agent/src/agents/spark-notify/types.rs`, `crates/alia-core-agent/src/character-orchestrator/spark_emit.rs`, `packages/stage-ui/src/stores/character/avatar-touch.ts`, `packages/stage-ui/src/stores/character/index.ts`, `packages/stage-ui/src/stores/character/notebook.ts`, `packages/stage-ui/src/stores/character/orchestrator/store.ts`
 
-#### 读图与工程边界守则
-- 这是独立通知Agent路径，不是主会话自动把所有消息循环一遍。
-- 后台通知消费者和tick只由同步leader运行；失去leader/卸载即停止订阅与ticker。
-- 此路径的provider/model来自全局Consciousness，提示词来自当前Character；不能画成主chat同样的按session配置解析。
-- Notebook在此文件中用ref持有entries/tasks；未看到此store的持久化适配，不能称为长期记忆数据库。
-- spark:emit的handler当前是no-op。
-- processSparkNotify非立即处理或处理中的通知进入队列；失败按attempts/maxAttempts重排，达到上限丢弃并记录。
+#### 工程边界守则
+- Spark 是独立于主对话流的主动事件旁路，仅消费外部触发、定时检查或扩展通知队列。
+- CharacterNotebook 由 crates/alia-storage 持久化管理 entries / tasks / focus 状态，与主会话上下文隔离并以只读焦点摘要形式按需投影入系统提示词。
+- handle_spark_emit 在完成安静时段、冷却窗口与发送上限校验后，将主动消息定向投递至目标会话或外部模块通道。
 
 #### 节点与状态归属登记表（共 20 个节点）
 
@@ -797,7 +790,7 @@
 | `spark_character` | 反应呈现 | **Character Store** | `useCharacterStore` | `packages/stage-ui/src/stores/character/index.ts:38` | 管理文本反应历史及流状态 | reactions上限200 / streamingReactions | WebUI 面板前端 |
 | `spark_speech` | 反应呈现 | **SpeechClient 通知producer** | `new Speech(..., notification)` | `packages/stage-ui/src/stores/character/index.ts:78` | 把通知反应literal/special交音频宿主 | turnId=spark:eventId | WebUI 面板前端 |
 | `spark_out` | 通知决策 | **spark:command出站** | `modsServerChannelStore.send` | `packages/stage-ui/src/stores/character/orchestrator/store.ts:148` | 扩展并投递Agent给出的命令 | destinations / event lineage | WebUI 面板前端 |
-| `spark_noop` | 边界与清理 | **spark:emit 当前空实现** | `handleSparkEmit` | `packages/stage-ui/src/stores/character/orchestrator/store.ts:265` | 消费入口存在，但现在直接return undefined | no-op | WebUI 面板前端 |
+| `spark_emit_handler` | 主动事件外发 | **handleSparkEmit · 主动消息外发处理器** | `pub async fn handle_spark_emit` | `crates/alia-core-agent/src/character-orchestrator/spark_emit.rs:265` | 在通过频率限制、安静时段与通道权限检查后，将主动触发的消息投递至目标会话或外部渠道模块。 | 主动消息配额计数器与最近投递时间戳 | Rust 核心实现 |
 | `spark_dispose` | 边界与清理 | **dispose / stopConsumers** | `dispose` | `packages/stage-ui/src/stores/character/orchestrator/store.ts:328` | 取消leader监听、ticker与事件订阅 | 重置initialized | WebUI 面板前端 |
 
 #### 调用、数据、事件与契约关系表（共 23 条有向边）
@@ -824,7 +817,7 @@
 | `spark_reaction` (ReactionPlugin) | `spark_character` (Character Store) | 事件 (`event`) | onDelta/onEnd |
 | `spark_character` (Character Store) | `spark_speech` (SpeechClient 通知producer) | 调用 (`call`) | literal/special输出 |
 | `spark_command` (builtIn_sparkCommand) | `spark_out` (spark:command出站) | 数据流 (`data`) | 经schema验证与展开 |
-| `spark_orchestrator` (Character Orchestrator) | `spark_noop` (spark:emit 当前空实现) | 调用 (`call`) | spark:emit入口 |
+| `spark_orchestrator` (Character Orchestrator) | `spark_emit_handler` (handleSparkEmit · 主动消息外发处理器) | 调用 (`call`) | spark:emit入口 |
 | `spark_leader` (同步Leader生命周期) | `spark_dispose` (dispose / stopConsumers) | 生命周期 (`lifecycle`) | 失去领导时停止消费者 |
 | `spark_dispose` (dispose / stopConsumers) | `spark_scheduler` (tick / enqueueDueTasks) | 生命周期 (`lifecycle`) | 清除ticker；停止消费者 |
 
@@ -835,18 +828,17 @@
 > **专题定位**：聊天附件/工具图片按会话选择模型；周期性屏幕观察经过独立编排，再可选写入模块上下文。
 
 - **配套矢量图纸**：[职责组织图 (`12-vision-organization.svg`)](./diagrams/12-vision-organization.svg) ｜ [调用与数据流图 (`12-vision-relations.svg`)](./diagrams/12-vision-relations.svg) ｜ [Graphviz 组织图源](./diagrams/12-vision-organization.dot) ｜ [Graphviz 关系图源](./diagrams/12-vision-relations.dot)
-- **直接涉及源码范围**：`crates/alia-vision-pipeline/src/use-chat-vision.rs`, `crates/alia-vision-pipeline/src/store.rs`, `crates/alia-vision-pipeline/src/use-vision-inference.rs`, `crates/alia-vision-pipeline/src/vision-read-queue.rs`, `crates/alia-vision-pipeline/src/use-vision-workloads.rs`, `crates/alia-vision-pipeline/src/orchestrator.rs`, `crates/alia-vision-pipeline/src/processing-store.rs`, `crates/alia-vision-pipeline/src/activity.rs`
+- **直接涉及源码范围**：`crates/alia-vision-pipeline/src/activity.rs`, `crates/alia-vision-pipeline/src/orchestrator.rs`, `crates/alia-vision-pipeline/src/processing-store.rs`, `crates/alia-vision-pipeline/src/store.rs`, `crates/alia-vision-pipeline/src/use-chat-vision.rs`, `crates/alia-vision-pipeline/src/use-vision-inference.rs`, `crates/alia-vision-pipeline/src/use-vision-workloads.rs`, `crates/alia-vision-pipeline/src/vision-read-queue.rs`
 
-#### 读图与工程边界守则
-- 图片直接进入支持图像的聊天模型，或由选定 Vision 模型描述；两者是配置与能力条件下的分支。
-- VisionReadQueue 是每个 renderer 窗口内的队列，不是全应用统一并发闸门。
-- vision:workload:sourceId 提供稳定 contextId；replace-self 更新该来源的上下文，而非追加永久记忆。
+#### 工程边界守则
+- 视觉感知具有两条正交通路：用户聊天附图直接进入支持多模态的对话模型，或在纯文本模式下由受控视觉模型生成结构化描述摘要。
+- 服务端 VisionReadCoordinator 按图像哈希与 Provider 管理进程级并发信号量，确保相同附件在多订阅端间仅执行一次推理并安全复用结果。
 
 #### 节点与状态归属登记表（共 16 个节点）
 
 | 节点 ID | 职责分组 | 名称 | 导出符号 (`symbol`) | 源码路径与行号 | 职责边界 | 状态与生命周期归属 | 架构分层 |
 |---|---|---|---|---|---|---|---|
-| `vision_chatvision` | 聊天图片 | **useChatVision** | `useChatVision` | `crates/alia-vision-pipeline/src/use-chat-vision.rs:26` | 统一聊天图片路由判断 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `vision_chatvision` | 聊天图片 | **useChatVision** | `useChatVision` | `crates/alia-vision-pipeline/src/use-chat-vision.rs:26` | 统一聊天图片路由判断 | 按 sessionId 绑定的视觉输入选择策略与路由分支状态 | Rust 核心实现 |
 | `vision_selection` | 聊天图片 | **selectionOf(sessionId)** | `selectionOf` | `crates/alia-vision-pipeline/src/use-chat-vision.rs:42` | 从会话角色 getModules 得到 chat/vision 选择 | 无角色时读全局默认 | Rust 核心实现 |
 | `vision_capability` | 聊天图片 | **declaresImageInput** | `declaresImageInput` | `crates/alia-vision-pipeline/src/use-chat-vision.rs:59` | 查模型目录 abilities.vision | 目录缺省不等于证实不能看图 | Rust 核心实现 |
 | `vision_attachments` | 聊天图片 | **readsAttachedImages** | `readsAttachedImages` | `crates/alia-vision-pipeline/src/use-chat-vision.rs:68` | 是否让 Vision 先读用户附件 | useForChat 开关 | Rust 核心实现 |
@@ -892,9 +884,9 @@
 > **专题定位**：Stage.vue 装配播放设备与 Voice Store；其他界面通过命令/快照交互。PCM 留在音频宿主。
 
 - **配套矢量图纸**：[职责组织图 (`13-voice-host-organization.svg`)](./diagrams/13-voice-host-organization.svg) ｜ [调用与数据流图 (`13-voice-host-relations.svg`)](./diagrams/13-voice-host-relations.svg) ｜ [Graphviz 组织图源](./diagrams/13-voice-host-organization.dot) ｜ [Graphviz 关系图源](./diagrams/13-voice-host-relations.dot)
-- **直接涉及源码范围**：`apps/webui/src/components/sandbox/SandboxHost.vue`, `packages/stage-ui/src/stores/voice.ts`, `packages/stage-ui/src/composables/audio/voice-controller.ts`, `packages/stage-ui/src/stores/settings/audio-device.ts`, `packages/stage-ui/src/composables/audio/audio-device.ts`, `packages/audio-web/src/browser/sources.ts`, `crates/alia-audio-pipeline/src/audio-input.rs`, `packages/stage-ui/src/stores/modules/hearing.ts`, `packages/stage-ui/src/libs/audio/hearing-transcriber.ts`, `packages/stage-ui/src/composables/voice-drafts.ts`, `packages/stage-ui/src/stores/chat.ts`, `packages/stage-ui/src/services/speech/bus.ts`, `packages/stage-ui/src/services/speech/speech-client.ts`, `packages/stage-ui/src/stores/voice-messages.ts`, `packages/stage-ui/src/stores/voice-capture-lease.ts`, `packages/stage-ui/src/stores/audio.ts`
+- **直接涉及源码范围**：`apps/webui/src/components/sandbox/SandboxHost.vue`, `crates/alia-audio-pipeline/src/audio-input.rs`, `packages/audio-web/src/browser/sources.ts`, `packages/stage-ui/src/composables/audio/audio-device.ts`, `packages/stage-ui/src/composables/audio/voice-controller.ts`, `packages/stage-ui/src/composables/voice-drafts.ts`, `packages/stage-ui/src/libs/audio/hearing-transcriber.ts`, `packages/stage-ui/src/services/speech/bus.ts`, `packages/stage-ui/src/services/speech/speech-client.ts`, `packages/stage-ui/src/stores/audio.ts`, `packages/stage-ui/src/stores/chat.ts`, `packages/stage-ui/src/stores/modules/hearing.ts`, `packages/stage-ui/src/stores/settings/audio-device.ts`, `packages/stage-ui/src/stores/voice-capture-lease.ts`, `packages/stage-ui/src/stores/voice-messages.ts`, `packages/stage-ui/src/stores/voice.ts`
 
-#### 读图与工程边界守则
+#### 工程边界守则
 - AudioInput 使用订阅计数共享一条音源；首个订阅打开，最后一个退出关闭。VoiceController 不拥有关闭它的权力。
 - SpeechClient 每次创建独立 producerId/originId，同一 TurnRef 的生产者由宿主有序管理。
 - manual/composer/call/voice-message 是不同的产品工作流，不能等同于一个自动提交的语音输入。
@@ -960,16 +952,12 @@
 > **专题定位**：检测器产生证据，规则作决定，控制器执行命令；一个输入经过pending、capturing、finalizing、settled。
 
 - **配套矢量图纸**：[职责组织图 (`14-voice-input-organization.svg`)](./diagrams/14-voice-input-organization.svg) ｜ [调用与数据流图 (`14-voice-input-relations.svg`)](./diagrams/14-voice-input-relations.svg) ｜ [Graphviz 组织图源](./diagrams/14-voice-input-organization.dot) ｜ [Graphviz 关系图源](./diagrams/14-voice-input-relations.dot)
-- **直接涉及源码范围**：`crates/alia-core-agent/src/voice/controller.rs`, `crates/alia-core-agent/src/voice/input/types.rs`, `crates/alia-core-agent/src/voice/input/attempt.rs`, `crates/alia-audio-pipeline/src/capture.rs`, `crates/alia-core-agent/src/voice/input/speech-input.rs`, `crates/alia-core-agent/src/voice/input/ports.rs`, `crates/alia-core-agent/src/voice/plugins/registry.rs`, `crates/alia-core-agent/src/voice/plugins/types.rs`, `packages/stage-ui/src/libs/voice/voice-rephrase-plugin.ts`, `packages/stage-ui/src/libs/voice/voice-activity-plugin.ts`, `packages/stage-ui/src/libs/voice/speaker-evidence-plugin.ts`, `packages/stage-ui/src/libs/voice/voice-end-judge-plugin.ts`, `crates/alia-core-agent/src/voice/policy/events.rs`, `crates/alia-core-agent/src/voice/policy/engine.rs`, `crates/alia-core-agent/src/voice/policy/rules.rs`, `crates/alia-core-agent/src/voice/policy/types.rs`
+- **直接涉及源码范围**：`crates/alia-audio-pipeline/src/capture.rs`, `crates/alia-core-agent/src/voice/controller.rs`, `crates/alia-core-agent/src/voice/input/attempt.rs`, `crates/alia-core-agent/src/voice/input/ports.rs`, `crates/alia-core-agent/src/voice/input/speech-input.rs`, `crates/alia-core-agent/src/voice/input/types.rs`, `crates/alia-core-agent/src/voice/plugins/registry.rs`, `crates/alia-core-agent/src/voice/plugins/types.rs`, `crates/alia-core-agent/src/voice/policy/engine.rs`, `crates/alia-core-agent/src/voice/policy/events.rs`, `crates/alia-core-agent/src/voice/policy/rules.rs`, `crates/alia-core-agent/src/voice/policy/types.rs`, `packages/stage-ui/src/libs/voice/speaker-evidence-plugin.ts`, `packages/stage-ui/src/libs/voice/voice-activity-plugin.ts`, `packages/stage-ui/src/libs/voice/voice-end-judge-plugin.ts`, `packages/stage-ui/src/libs/voice/voice-rephrase-plugin.ts`
 
-#### 读图与工程边界守则
-- end()停止PCM捕获，转写输出还须结束；finalizing已释放输入准入，下一句可以开始。
-- 插件watch跟随最新文档并可取消；finalize依插件安装和注册顺序串行。
-- 慢速结束判断携带readAt，VoicePolicy对照转写/活动/上下文revision拒绝过时证据。
-- VoicePlugin grants是受约束调用接口；插件仍是可信进程内代码，不是沙箱。
-- manual after-silence先等待目标播放静音；speech-onset先保留pre-roll再等待淡出。
-- SpeechInputPorts有conversationContext接口，但当前Stage useVoiceStore构造控制器时未注入；默认上下文是revision=0/messages=[]。图中revision能力不应被误读为Stage已接入完整近期会话。
-- 说话人证据进入TranscriptDocument/trace，但voice-drafts.ts明确暂不把该证据写入prompt，等待可靠的speaker gate。
+#### 工程边界守则
+- end() 立即终止 PCM 音频捕获并进入 finalizing 阶段释放输入准入，使下一句语音捕获能够与上一句转写收尾并行重叠。
+- SpeechInputPorts 显式注入近期会话上下文与版本标记（transcriptText / context / signal revisions），VoicePolicy 据此拒绝过时的慢速端点判断。
+- 说话人声纹门控通过校准阈值后进入语音输入文档与执行观测记录，并仅在显式开启身份感知策略时向推理上下文提供已验证的 speaker_id。
 
 #### 节点与状态归属登记表（共 23 个节点）
 
@@ -986,7 +974,7 @@
 | `voice_input_submission` | 输入实例 | **SpeechSubmission** | `SpeechSubmission` | `crates/alia-core-agent/src/voice/input/types.rs:65` | 本次最终文本及完整修订来源 | submissionId / transcript / context | Rust 核心实现 |
 | `voice_input_plugins` | 插件机制 | **VoicePlugins registry** | `VoicePlugins` | `crates/alia-core-agent/src/voice/plugins/registry.rs:1` | 安装插件并按输入/输出派生scope | grants / handles / cleanup | Rust 核心实现 |
 | `voice_input_scope` | 插件机制 | **SpeechInputScope** | `SpeechInputScope` | `crates/alia-core-agent/src/voice/plugins/types.rs:63` | 每个插件对一个输入的限定操作 | inputId / sessionId / signal | Rust 核心实现 |
-| `voice_input_watch` | 插件机制 | **watch 最新文档** | `SpeechInputScope.watch` | `crates/alia-core-agent/src/voice/plugins/types.rs:75` | key变化即取消旧任务，可debounce | 推测工作非最终写入 | Rust 核心实现 |
+| `voice_input_watch` | 插件机制 | **watch 最新文档** | `SpeechInputScope.watch` | `crates/alia-core-agent/src/voice/plugins/types.rs:75` | key 变化时立即取消未完成的防抖推测任务，确保语音输入流水线仅响应最新有效语句。 | 推测工作非最终写入 | Rust 核心实现 |
 | `voice_input_finalize` | 插件机制 | **finalize 有序处理** | `FinalizeContext` | `crates/alia-core-agent/src/voice/plugins/types.rs:44` | 在完整转写上依次修正/附加上下文 | patch / attach / timeout | Rust 核心实现 |
 | `voice_input_rephrase` | 具体插件 | **VoiceRephrase plugin** | `createVoiceRephrasePlugin` | `packages/stage-ui/src/libs/voice/voice-rephrase-plugin.ts:45` | 可选文本修正；由Stage注入模型操作 | watch准备；finalize提交 | WebUI 面板前端 |
 | `voice_input_activity` | 具体插件 | **VoiceActivity plugin** | `createVoiceActivityPlugin` | `packages/stage-ui/src/libs/voice/voice-activity-plugin.ts:47` | 运行VAD/唤醒/回声准入并发出信号 | 音频窗口证据 | WebUI 面板前端 |
@@ -1014,7 +1002,7 @@
 | `voice_input_plugins` (VoicePlugins registry) | `voice_input_scope` (SpeechInputScope) | 持有 / 归属 (`owns`) | 每输入创建 |
 | `voice_input_scope` (SpeechInputScope) | `voice_input_watch` (watch 最新文档) | 调用 (`call`) | 注册 |
 | `voice_input_scope` (SpeechInputScope) | `voice_input_finalize` (finalize 有序处理) | 调用 (`call`) | 注册 |
-| `voice_input_transcript` (TranscriptDocument) | `voice_input_watch` (watch 最新文档) | 事件 (`event`) | 新版本取消旧工作 |
+| `voice_input_transcript` (TranscriptDocument) | `voice_input_watch` (watch 最新文档) | 事件 (`event`) | 新键覆盖取消前序工作 |
 | `voice_input_transcript` (TranscriptDocument) | `voice_input_finalize` (finalize 有序处理) | 数据流 (`data`) | 完整文档 |
 | `voice_input_rephrase` (VoiceRephrase plugin) | `voice_input_scope` (SpeechInputScope) | 调用 (`call`) | onInput |
 | `voice_input_activity` (VoiceActivity plugin) | `voice_input_events` (生命周期与信号) | 事件 (`event`) | speechActivitySignal |
@@ -1039,9 +1027,9 @@
 > **专题定位**：一个 TurnRef 对应一个 VoiceResponse；响应内可开多个有序 SpeechStream，每个响应拥有独立 PlaybackGroup。
 
 - **配套矢量图纸**：[职责组织图 (`15-voice-output-organization.svg`)](./diagrams/15-voice-output-organization.svg) ｜ [调用与数据流图 (`15-voice-output-relations.svg`)](./diagrams/15-voice-output-relations.svg) ｜ [Graphviz 组织图源](./diagrams/15-voice-output-organization.dot) ｜ [Graphviz 关系图源](./diagrams/15-voice-output-relations.dot)
-- **直接涉及源码范围**：`crates/alia-core-agent/src/voice/controller.rs`, `crates/alia-core-agent/src/voice/turn.rs`, `crates/alia-core-agent/src/voice/output/response.rs`, `packages/stage-ui/src/stores/modules/speech.ts`, `crates/alia-core-agent/src/voice/output/speech-transformation/segmenter.rs`, `crates/alia-core-agent/src/voice/output/speech-transformation/index.rs`, `crates/alia-audio-pipeline/src/speech-pipeline.rs`, `crates/alia-audio-pipeline/src/processors/tts-chunker.rs`, `crates/alia-audio-pipeline/src/playback.rs`, `packages/audio-web/src/browser/playback.ts`, `crates/alia-core-agent/src/voice/plugins/types.rs`, `apps/webui/src/components/sandbox/SandboxHost.vue`
+- **直接涉及源码范围**：`apps/webui/src/components/sandbox/SandboxHost.vue`, `crates/alia-audio-pipeline/src/playback.rs`, `crates/alia-audio-pipeline/src/processors/tts-chunker.rs`, `crates/alia-audio-pipeline/src/speech-pipeline.rs`, `crates/alia-core-agent/src/voice/controller.rs`, `crates/alia-core-agent/src/voice/output/response.rs`, `crates/alia-core-agent/src/voice/output/speech-transformation/index.rs`, `crates/alia-core-agent/src/voice/output/speech-transformation/segmenter.rs`, `crates/alia-core-agent/src/voice/plugins/types.rs`, `crates/alia-core-agent/src/voice/turn.rs`, `packages/audio-web/src/browser/playback.ts`, `packages/stage-ui/src/stores/modules/speech.ts`
 
-#### 读图与工程边界守则
+#### 工程边界守则
 - 普通TTS走分段合成；双向流式TTS可并行消费文本并输出音频，不应画成同一条固定分句流水线。
 - finish()等待全部producer和实际播放排空；end()只封闭一个producer。
 - 打断先关闭目标response的接纳、淡出该playback group，再取消其所有producer；不等于停止所有音频。
@@ -1109,14 +1097,14 @@
 
 ### 专题 16：流控制、内联动作标记解析与情绪语义信号分发 (`expression`)
 
-> **专题定位**：保留原版流控制与语义情绪标记解析核心能力：从语音/文本流中识别特殊标记，经 StreamingControl 与 createStreamingControlParser 解析、normalizeActPayload 归一化为标准 EmotionPayload 信号并推入分发队列；移除原版下半部分全部 17 个 Live2D/VRM/MMD 内部渲染器节点。
+> **专题定位**：在模型文本与语音混合输出流中实时切分 <|ACT:...|> 内联表达指令，经 StreamingControl、createStreamingControlParser 与 normalizeActPayload 归一化为标准 EmotionPayload 语义信号，并进入分发队列通知 WebUI 测试沙盒及外部扩展插件消费。
 
 - **配套矢量图纸**：[职责组织图 (`16-expression-organization.svg`)](./diagrams/16-expression-organization.svg) ｜ [调用与数据流图 (`16-expression-relations.svg`)](./diagrams/16-expression-relations.svg) ｜ [Graphviz 组织图源](./diagrams/16-expression-organization.dot) ｜ [Graphviz 关系图源](./diagrams/16-expression-relations.dot)
-- **直接涉及源码范围**：`apps/webui/src/components/sandbox/SandboxHost.vue`, `packages/stage-ui/src/stores/ai/chat-llm/streaming-control.ts`, `crates/alia-audio-pipeline/src/llm-streaming-control/controller.rs`, `crates/alia-audio-pipeline/src/llm-streaming-control/payloads.rs`, `packages/stage-ui/src/constants/emotions.ts`
+- **直接涉及源码范围**：`apps/webui/src/components/sandbox/SandboxHost.vue`, `crates/alia-audio-pipeline/src/llm-streaming-control/controller.rs`, `crates/alia-audio-pipeline/src/llm-streaming-control/payloads.rs`, `packages/stage-ui/src/constants/emotions.ts`, `packages/stage-ui/src/services/expression-bus.ts`, `packages/stage-ui/src/stores/ai/chat-llm/streaming-control.ts`
 
-#### 读图与工程边界守则
-- 核心运行时只负责将模型输出的 <|ACT:...|> 标记解析为标准语义信号（Emotion / EmotionPayload），绝不内置绑定 Live2D 或 VRM 渲染器。
-- 归一化后的情绪与动作信号通过 ExpressionBus 向 WebUI 测试沙盒展示，并可通过模块通道转发给任何未来按需挂载的外部表现插件。
+#### 工程边界守则
+- 核心运行时只负责将流式输出中的 <|ACT:...|> 内联控制标记解析并归一化为标准语义信号（Emotion / EmotionPayload），不内置绑定任何图形渲染引擎。
+- 归一化后的情绪与动作信号由 ExpressionBus 推入信号分发队列（emotionsQueue），同步供给 WebUI 测试沙盒实时观测与外部已挂载的扩展插件订阅。
 
 #### 节点与状态归属登记表（共 7 个节点）
 
@@ -1126,9 +1114,9 @@
 | `expression_control` | 流控制入口 | **StreamingControl Store** | `useLlmStreamingControlStore` | `packages/stage-ui/src/stores/ai/chat-llm/streaming-control.ts:23` | 注册/分派控制协议与trace | turn级CALL可跨窗口转发 | WebUI 面板前端 |
 | `expression_parser` | 流控制入口 | **createStreamingControlParser** | `createStreamingControlParser` | `crates/alia-audio-pipeline/src/llm-streaming-control/controller.rs:1` | 匹配ACT/DELAY/CALL解析器并发布signal | 每turn处理状态 | Rust 核心实现 |
 | `expression_normalize` | 流控制入口 | **normalizeActPayload** | `normalizeActPayload` | `crates/alia-audio-pipeline/src/llm-streaming-control/payloads.rs:1` | 把ACT字段归一为合法表达请求 | emotion / expression / motion | Rust 核心实现 |
-| `expression_stage` | 语义表达信号路由 | **ExpressionBus.onSignal** | `ExpressionBus.onSignal` | `packages/stage-ui/src/services/expression-bus.ts:319` | 接收归一化后的 ACT 语义负载，提取情绪/动作信号并分发至 WebUI 面板与外部扩展通道。 | 显式motion优先 | WebUI 面板前端 |
+| `expression_stage` | 语义表达信号路由 | **ExpressionBus.onSignal** | `ExpressionBus.onSignal` | `packages/stage-ui/src/services/expression-bus.ts:319` | 接收归一化后的 ACT 语义负载，提取标准 Emotion 信号并分发至 WebUI 测试沙盒与外部扩展通道。 | 显式motion优先 | WebUI 面板前端 |
 | `expression_emotion` | 语义表达信号路由 | **Emotion / EmotionPayload** | `Emotion / EmotionPayload` | `packages/stage-ui/src/constants/emotions.ts:1` | 九类标签加强度 | happy/sad/angry/think/surprised/awkward/question/curious/neutral | WebUI 面板前端 |
-| `expression_queue` | 语义表达信号路由 | **emotionsQueue · 信号分发队列** | `emotionsQueue` | `packages/stage-ui/src/services/expression-bus.ts:265` | 缓冲语义情绪与动作事件，供 WebUI 沙盒状态展示或外部已挂载的扩展插件订阅消费。 | 不是心理记忆库 | WebUI 面板前端 |
+| `expression_queue` | 语义表达信号路由 | **emotionsQueue · 信号分发队列** | `emotionsQueue` | `packages/stage-ui/src/services/expression-bus.ts:265` | 缓冲语义情绪与动作事件，供 WebUI 测试沙盒实时观测与外部已挂载的扩展插件订阅消费。 | 不是心理记忆库 | WebUI 面板前端 |
 
 #### 调用、数据、事件与契约关系表（共 6 条有向边）
 
@@ -1148,22 +1136,21 @@
 > **专题定位**：ExtensionHost 管理运行 session、Provider 注册事务、Kit 绑定、权限、资源及销毁。Rust 宿主外层服务额外持有安装目录和启用配置。
 
 - **配套矢量图纸**：[职责组织图 (`17-platform-extension-host-organization.svg`)](./diagrams/17-platform-extension-host-organization.svg) ｜ [调用与数据流图 (`17-platform-extension-host-relations.svg`)](./diagrams/17-platform-extension-host-relations.svg) ｜ [Graphviz 组织图源](./diagrams/17-platform-extension-host-organization.dot) ｜ [Graphviz 关系图源](./diagrams/17-platform-extension-host-relations.dot)
-- **直接涉及源码范围**：`crates/alia-extension-host/src/features/auto-reload/index.rs`, `crates/alia-extension-host/src/host/managed-sessions.rs`, `crates/alia-extension-host/src/host/registry.rs`, `crates/alia-extension-host/src/extension/disposable.rs`, `crates/alia-extension-host/src/plugin-host/core.rs`, `crates/alia-extension-host/src/plugin-host/hosted-kits.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/transport/loaders/fs.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/dependencies.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/extension-sessions.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/permissions.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/resources.rs`, `crates/alia-extension-host/src/plugin-host/shared/manifest.rs`
+- **直接涉及源码范围**：`crates/alia-extension-host/src/extension/disposable.rs`, `crates/alia-extension-host/src/features/auto-reload/index.rs`, `crates/alia-extension-host/src/host/managed-sessions.rs`, `crates/alia-extension-host/src/host/registry.rs`, `crates/alia-extension-host/src/plugin-host/core.rs`, `crates/alia-extension-host/src/plugin-host/hosted-kits.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/dependencies.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/extension-sessions.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/permissions.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/resources.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/transport/loaders/fs.rs`, `crates/alia-extension-host/src/plugin-host/shared/manifest.rs`
 
-#### 读图与工程边界守则
-- session phase 是 pending / setting-up / ready / failed / stopped；这是扩展加载状态，不是角色认知状态。
-- SDK 默认 permissionResolver 缺省时以 manifest.permissions 作为 resolvedGrant；权限字段存在不等于宿主已有交互式审批或系统级沙箱。
-- 插件由文件入口加载；这里的生命周期隔离不能等同于操作系统进程隔离。
-- stop 撤销注册并清理资源，不会强制中止正在挂起的任意扩展 JavaScript。
+#### 工程边界守则
+- ExtensionSession 生命周期严格定义为 pending / setting-up / ready / failed / stopped 五态，与数字个体自身的认知对话状态完全正交。
+- ExtensionHost 必须装配交互式 PermissionResolver（对接 WebUI“权限与审批”策略库），对 manifest.permissions 逐项签发并校验细粒度授权租约。
+- stop(sessionId) 与热重载触发逆序资源清理管线（撤回 Provider -> 清理 Module 路由 -> 释放根作用域订阅），彻底消除僵尸插件与过期工具。
 
 #### 节点与状态归属登记表（共 26 个节点）
 
 | 节点 ID | 职责分组 | 名称 | 导出符号 (`symbol`) | 源码路径与行号 | 职责边界 | 状态与生命周期归属 | 架构分层 |
 |---|---|---|---|---|---|---|---|
-| `X01` | 清单与加载 | **Manifest v2 校验** | `parseExtensionManifest` | `crates/alia-extension-host/src/plugin-host/shared/manifest.rs:26` | 严格解析清单；身份、版本、runtime、入口与 Kits 声明是加载前提。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `X02` | 清单与加载 | **文件入口加载器** | `FileSystemLoader` | `crates/alia-extension-host/src/plugin-host/runtimes/transport/loaders/fs.rs:44` | 按 runtime 选择入口并加载定义。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `X03` | 宿主主干 | **start(manifest)** | `ExtensionHost.start` | `crates/alia-extension-host/src/plugin-host/core.rs:974` | 校验 runtime/ALIA 兼容性，调用 loader，再启动定义。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `X04` | 宿主主干 | **startExtension** | `startExtension` | `crates/alia-extension-host/src/plugin-host/core.rs:302` | 创建 session 身份、权限快照、子容器和 Provider 事务。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `X01` | 清单与加载 | **Manifest v2 校验** | `parseExtensionManifest` | `crates/alia-extension-host/src/plugin-host/shared/manifest.rs:26` | 严格解析清单；身份、版本、runtime、入口与 Kits 声明是加载前提。 | 已校验并冻结的 PluginManifest v2 元数据结构体 | Rust 核心实现 |
+| `X02` | 清单与加载 | **文件入口加载器** | `FileSystemLoader` | `crates/alia-extension-host/src/plugin-host/runtimes/transport/loaders/fs.rs:44` | 按 runtime 选择入口并加载定义。 | 模块入口装载器缓存与本地插件路径句柄 | Rust 核心实现 |
+| `X03` | 宿主主干 | **start(manifest)** | `ExtensionHost.start` | `crates/alia-extension-host/src/plugin-host/core.rs:974` | 校验扩展协议版本与运行时兼容性，调用加载器装入清单并初始化隔离 Session。 | ExtensionHost 单次插件启动事务状态机 | Rust 核心实现 |
+| `X04` | 宿主主干 | **startExtension** | `startExtension` | `crates/alia-extension-host/src/plugin-host/core.rs:302` | 创建 session 身份、权限快照、子容器和 Provider 事务。 | ExtensionSession 身份令牌、权限租约与子作用域容器 | Rust 核心实现 |
 | `X05` | Session 所有权 | **ExtensionSession** | `ExtensionSession` | `crates/alia-extension-host/src/plugin-host/core.rs:106` | 属于一次加载；持有 manifest、phase、missingKitIds、modules、permissions 和 root subscriptions。 | phase / modules Map / grants | Rust 核心实现 |
 | `X06` | 宿主状态服务 | **Session 注册表** | `ExtensionSessionService` | `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/extension-sessions.rs:16` | 按运行期 session id 查询、登记、删除加载实例。 | session registry | Rust 核心实现 |
 | `X07` | Session 所有权 | **Session 子容器** | `createContainer(parent: host)` | `crates/alia-extension-host/src/plugin-host/core.rs:327` | 每个扩展 session 为宿主 injeca 容器的子容器；dispose 驱动清理。 | owned lifecycle / stop outcome | Rust 核心实现 |
@@ -1172,7 +1159,7 @@
 | `X10` | 宿主状态服务 | **KitProviderRegistry** | `KitProviderRegistry` | `crates/alia-extension-host/src/plugin-host/hosted-kits.rs:476` | 维护 Host 来源、扩展提供者、预留槽、注册事务及 generation。 | records / pending / transactions / generations | Rust 核心实现 |
 | `X11` | 启动状态机 | **所需 Kit 等待** | `pending + watch` | `crates/alia-extension-host/src/plugin-host/core.rs:423` | 缺少必须 Kit 时返回 pending，等所有兼容 Provider ready 后才运行 setup。 | missingKitIds | Rust 核心实现 |
 | `X12` | Session 所有权 | **ExtensionSetupContext** | `ctx` | `crates/alia-extension-host/src/plugin-host/core.rs:372` | 给扩展 root 提供 identity、kits、subscriptions、modules.register。 | root scope | Rust 核心实现 |
-| `X13` | 启动状态机 | **扩展 setup(ctx)** | `setupExtensionSession` | `crates/alia-extension-host/src/plugin-host/core.rs:445` | 执行用户扩展初始化；成功后提交整个 Provider 事务。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `X13` | 启动状态机 | **扩展 setup(ctx)** | `setupExtensionSession` | `crates/alia-extension-host/src/plugin-host/core.rs:445` | 执行用户扩展初始化；成功后提交整个 Provider 事务。 | 插件 setup(ctx) 初始化承诺与资源注册事务上下文 | Rust 核心实现 |
 | `X14` | Provider 生命周期 | **注册提交** | `commitTransaction` | `crates/alia-extension-host/src/plugin-host/hosted-kits.rs:747` | 所有声明 Kit 都填充且 setup 成功才发布；原子发布该次 session 提供者。 | ready provider snapshots | Rust 核心实现 |
 | `X15` | Provider 生命周期 | **回滚与代际租约** | `rollbackTransaction / registration lease` | `crates/alia-extension-host/src/plugin-host/hosted-kits.rs:784` | 失败、停止释放预留；旧 handle 不能撤销新 generation 提供者。 | lease generation | Rust 核心实现 |
 | `X16` | Module 所有权 | **Module 子作用域** | `ctx.modules.register` | `crates/alia-extension-host/src/plugin-host/core.rs:377` | 独立 identity、permissions、subscriptions、kits；同 session 中 module id 不重复。 | session.modules Map | Rust 核心实现 |
@@ -1180,9 +1167,9 @@
 | `X18` | Module 所有权 | **模块资源追踪** | `getOrCreateExtensionModuleResourceTracker` | `crates/alia-extension-host/src/plugin-host/core.rs:522` | 记录模块拥有的绑定/资源，模块销毁时撤回。 | extensionModuleResources Map | Rust 核心实现 |
 | `X19` | 宿主状态服务 | **ResourceService** | `ResourceService` | `crates/alia-extension-host/src/plugin-host/runtimes/shared/services/resources.rs:34` | 提供 keyed resolver/value 资源，不是聊天记忆数据库。 | resolvers / values | Rust 核心实现 |
 | `X20` | 资源清理 | **DisposableStore** | `DisposableStore` | `crates/alia-extension-host/src/extension/disposable.rs:17` | 逆注册序逐一销毁；失败仍尝试剩余项，聚合错误。 | disposables[] / disposed | Rust 核心实现 |
-| `X21` | 资源清理 | **stop(sessionId)** | `stop` | `crates/alia-extension-host/src/plugin-host/core.rs:1035` | 将 phase 置 stopped、撤 Provider、dispose session 容器。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `X22` | 资源清理 | **分组清理** | `disposeSessionResources` | `crates/alia-extension-host/src/plugin-host/core.rs:736` | 顺序为绑定撤回、module 清理、root subscriptions；继续尝试所有组。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `X23` | 资源清理 | **reload(sessionId)** | `reload` | `crates/alia-extension-host/src/plugin-host/core.rs:1046` | 旧 session 清理成功后重新 start；产生新 session identity。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `X21` | 资源清理 | **stop(sessionId)** | `stop` | `crates/alia-extension-host/src/plugin-host/core.rs:1035` | 将 phase 置 stopped、撤 Provider、dispose session 容器。 | Session 停止信号、Provider 撤回句柄与作用域清理状态 | Rust 核心实现 |
+| `X22` | 资源清理 | **分组清理** | `disposeSessionResources` | `crates/alia-extension-host/src/plugin-host/core.rs:736` | 顺序为绑定撤回、module 清理、root subscriptions；继续尝试所有组。 | LIFO 分组清理队列（绑定撤回 / 模块卸载 / 根订阅释放） | Rust 核心实现 |
+| `X23` | 资源清理 | **reload(sessionId)** | `reload` | `crates/alia-extension-host/src/plugin-host/core.rs:1046` | 旧 session 清理成功后重新 start；产生新 session identity。 | 旧 Session 完整销毁屏障与新生成 Session 身份令牌 | Rust 核心实现 |
 | `X24` | Rust 宿主外层 | **服务端插件清单注册表** | `createExtensionHostRegistry` | `crates/alia-extension-host/src/host/registry.rs:305` | 扫描 extensions 根目录，保存 validated manifest、路径与 id 索引。 | entries / manifests / lookup Map | Rust 核心实现 |
 | `X25` | Rust 宿主外层 | **托管 session 与清理债务** | `ManagedExtensionSessions` | `crates/alia-extension-host/src/host/managed-sessions.rs:59` | 外层跟踪扩展加载状态与未完成清理；决定能否再次加载。 | managed sessions / cleanup report | Rust 核心实现 |
 | `X26` | Rust 宿主外层 | **自动重载监听** | `createExtensionAutoReloadFeature` | `crates/alia-extension-host/src/features/auto-reload/index.rs:50` | 文件变化触发同一启停流程；重载不等于保留原对象。 | watchers / reload queue | Rust 核心实现 |
@@ -1230,40 +1217,40 @@
 > **专题定位**：身份与事件契约、Host-provided Kit API、Extension-hosted Provider 注册、远程通道封装是不同层。不能把已有类型当作已经接通的执行能力。
 
 - **配套矢量图纸**：[职责组织图 (`18-platform-kits-protocol-organization.svg`)](./diagrams/18-platform-kits-protocol-organization.svg) ｜ [调用与数据流图 (`18-platform-kits-protocol-relations.svg`)](./diagrams/18-platform-kits-protocol-relations.svg) ｜ [Graphviz 组织图源](./diagrams/18-platform-kits-protocol-organization.dot) ｜ [Graphviz 关系图源](./diagrams/18-platform-kits-protocol-relations.dot)
-- **直接涉及源码范围**：`crates/alia-extension-host/src/kits/index.rs`, `crates/alia-extension-host/src/kits/tool/registry.rs`, `crates/alia-extension-host/src/kits/widget/index.rs`, `crates/alia-plugin-protocol/src/index.rs`, `crates/alia-plugin-protocol/src/types/events.rs`, `crates/alia-plugin-protocol/src/kits/widget/index.rs`, `crates/alia-plugin-protocol/src/kits/tool/index.rs`, `crates/alia-extension-host/Cargo.toml`, `crates/alia-extension-host/src/channels/index.rs`, `crates/alia-extension-host/src/channels/remote/websocket/index.rs`, `crates/alia-extension-host/src/kit/contract.rs`, `crates/alia-extension-host/src/kit/exposure-policy.rs`, `crates/alia-extension-host/src/kit/index.rs`, `crates/alia-extension-host/src/plugin-host/core.rs`, `crates/alia-extension-host/src/plugin-host/hosted-kits.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/transport/index.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/web/index.rs`, `crates/alia-extension-host/src/plugin/remote/index.rs`
+- **直接涉及源码范围**：`crates/alia-extension-host/src/channels/index.rs`, `crates/alia-extension-host/src/channels/remote/websocket/index.rs`, `crates/alia-extension-host/src/kit/contract.rs`, `crates/alia-extension-host/src/kit/exposure-policy.rs`, `crates/alia-extension-host/src/kit/index.rs`, `crates/alia-extension-host/src/kits/index.rs`, `crates/alia-extension-host/src/kits/tool/registry.rs`, `crates/alia-extension-host/src/kits/widget/index.rs`, `crates/alia-extension-host/src/plugin-host/core.rs`, `crates/alia-extension-host/src/plugin-host/hosted-kits.rs`, `crates/alia-extension-host/src/plugin-host/kit-rpc.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/transport/index.rs`, `crates/alia-extension-host/src/plugin-host/runtimes/web/index.rs`, `crates/alia-extension-host/src/plugin/remote/index.rs`, `crates/alia-plugin-protocol/src/index.rs`, `crates/alia-plugin-protocol/src/kits/tool/index.rs`, `crates/alia-plugin-protocol/src/kits/widget/index.rs`, `crates/alia-plugin-protocol/src/types/events.rs`
 
-#### 读图与工程边界守则
-- server-sdk 的 WebSocketExtensionPeer 另有可运行的协议连接实现；它不能证明 plugin-host 的全部 transport 分支实现。
-- 事件表中很多 configuration / contribution 名称只是共享契约；需要寻找具体 handler 才能说已接线。
-- Extension-hosted Provider 可以被预留、登记、发布和撤回；这与 Consumer 能调用其 handlers 是两个完成度。
+#### 工程边界守则
+- extension-protocol 与 plugin-protocol 共同定义扩展身份、权限领域、KitContract（版本/方法/事件/暴露策略）与消息投递语义。
+- Extension-hosted Kit 支持从提供者注册（HostSourceLease）、RPC 方法端点捕获到消费者安全调用（use / tryUse / watch）的完整闭环。
+- 插件传输通道工厂统一抽象 in-memory、WebSocket 与受控子进程（subprocess）传输通道，屏蔽跨语言与跨进程部署差异。
 
 #### 节点与状态归属登记表（共 25 个节点）
 
 | 节点 ID | 职责分组 | 名称 | 导出符号 (`symbol`) | 源码路径与行号 | 职责边界 | 状态与生命周期归属 | 架构分层 |
 |---|---|---|---|---|---|---|---|
-| `K01` | extension-protocol | **Extension 身份** | `ExtensionIdentity` | `crates/alia-plugin-protocol/src/index.rs:25` | 扩展 id、版本、session 身份的通用契约。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K02` | extension-protocol | **Module 身份** | `ExtensionModuleIdentity` | `crates/alia-plugin-protocol/src/index.rs:47` | 模块 id 指向其所属扩展身份。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K03` | extension-protocol | **权限领域** | `ModulePermissionArea` | `crates/alia-plugin-protocol/src/index.rs:62` | apis / resources / capabilities / processors / pipelines 的声明与授权形状。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K04` | plugin-protocol | **事件与负载契约** | `ProtocolEvents` | `crates/alia-plugin-protocol/src/types/events.rs:1246` | 共享 input/output、registry、config、spark、context、asset 事件名与负载。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K05` | plugin-protocol | **路由与投递契约** | `DeliveryConfig` | `crates/alia-plugin-protocol/src/types/events.rs:370` | broadcast / consumer / consumer-group，以及 first / round-robin / priority / sticky。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K06` | Kit 公共契约 | **KitContract** | `KitContract` | `crates/alia-extension-host/src/kit/contract.rs:99` | id、精确 version、methods、events、允许的暴露策略。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K07` | Kit 公共契约 | **方法 / 事件声明** | `defineKitMethod / defineKitEvent` | `crates/alia-extension-host/src/kit/contract.rs:78` | 建立输入、输出和事件负载的类型契约。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K08` | Kit 公共契约 | **暴露策略** | `ExposePolicy` | `crates/alia-extension-host/src/kit/exposure-policy.rs:6` | local-only / remote-observable / remote-callable；枚举本身不是远程执行器。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K09` | Host Kit API | **KitRef / Client 工厂** | `KitRef` | `crates/alia-extension-host/src/kit/index.rs:55` | Host Kit 的身份、版本、可用策略和 createClient。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `K01` | extension-protocol | **Extension 身份** | `ExtensionIdentity` | `crates/alia-plugin-protocol/src/index.rs:25` | 扩展 id、版本、session 身份的通用契约。 | 编译期协议类型：ExtensionIdentity（id / version / sessionId） | Rust 核心实现 |
+| `K02` | extension-protocol | **Module 身份** | `ExtensionModuleIdentity` | `crates/alia-plugin-protocol/src/index.rs:47` | 模块 id 指向其所属扩展身份。 | 编译期协议类型：ModuleIdentity（隶属扩展与模块标识） | Rust 核心实现 |
+| `K03` | extension-protocol | **权限领域** | `ModulePermissionArea` | `crates/alia-plugin-protocol/src/index.rs:62` | apis / resources / capabilities / processors / pipelines 的声明与授权形状。 | 编译期协议类型：PermissionScope（apis/resources/capabilities 授权域） | Rust 核心实现 |
+| `K04` | plugin-protocol | **事件与负载契约** | `ProtocolEvents` | `crates/alia-plugin-protocol/src/types/events.rs:1246` | 共享 input/output、registry、config、spark、context、asset 事件名与负载。 | 编译期协议类型：PluginProtocolEvent（标准化事件名与载荷契约） | Rust 核心实现 |
+| `K05` | plugin-protocol | **路由与投递契约** | `DeliveryConfig` | `crates/alia-plugin-protocol/src/types/events.rs:370` | broadcast / consumer / consumer-group，以及 first / round-robin / priority / sticky。 | 编译期协议类型：DeliveryPolicy（broadcast / consumer 投递策略） | Rust 核心实现 |
+| `K06` | Kit 公共契约 | **KitContract** | `KitContract` | `crates/alia-extension-host/src/kit/contract.rs:99` | id、精确 version、methods、events、允许的暴露策略。 | 编译期协议类型：KitContract（Kit 版本、方法集、事件集与暴露策略） | Rust 核心实现 |
+| `K07` | Kit 公共契约 | **方法 / 事件声明** | `defineKitMethod / defineKitEvent` | `crates/alia-extension-host/src/kit/contract.rs:78` | 建立输入、输出和事件负载的类型契约。 | 强类型 RPC 请求/响应签名与事件负载校验 Schema | Rust 核心实现 |
+| `K08` | Kit 公共契约 | **暴露策略** | `ExposePolicy` | `crates/alia-extension-host/src/kit/exposure-policy.rs:6` | local-only / remote-observable / remote-callable；枚举本身不是远程执行器。 | 暴露策略枚举（local-only / remote-observable / remote-callable） | Rust 核心实现 |
+| `K09` | Host Kit API | **KitRef / Client 工厂** | `KitRef` | `crates/alia-extension-host/src/kit/index.rs:55` | Host Kit 的身份、版本、可用策略和 createClient。 | KitRef 描述符与按身份隔离的 Client 工厂句柄 | Rust 核心实现 |
 | `K10` | Host Kit API | **Host API 注册** | `registerKitApi` | `crates/alia-extension-host/src/plugin-host/core.rs:488` | 把 Host Kit 的客户端工厂登记到提供者注册表。 | HostSourceLease | Rust 核心实现 |
 | `K11` | Host Kit API | **use / tryUse / watch** | `createKitRegistry` | `crates/alia-extension-host/src/plugin-host/core.rs:598` | 消费者获取客户端或观察可用性；use 失败抛错，tryUse 返回结构化结果。 | watchers / subscriptions | Rust 核心实现 |
-| `K12` | Host Kit API | **授权检查 / createClient** | `resolveKitApi` | `crates/alia-extension-host/src/plugin-host/core.rs:568` | 目前取 getHostClientFactory，检查 apis:invoke 权限，再构造带归属的 Client。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K13` | Extension-hosted Kit | **扩展提供 Kit** | `createExtensionKitRegistry.provide` | `crates/alia-extension-host/src/plugin-host/core.rs:648` | 仅 root setup 可 provide；对照 manifest 声明填注册事务。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K14` | Extension-hosted Kit | **Provider handlers 储存** | `captureProviderEndpoint` | `crates/alia-extension-host/src/plugin-host/hosted-kits.rs:701` | 检查 methods 成员名称并捕获 handlers；Phase 3 不调用这些方法。 | accepted endpoint handlers | Rust 核心实现 |
-| `K15` | 尚未完整接通 | **Phase 4 消费闭环** | `Consumer Clients / calls / events / transport` | `crates/alia-extension-host/Cargo.toml:77` | 文档明确属于后续阶段；本提交 resolveKitApi 没有消费扩展提供者的方法调用链。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `K12` | Host Kit API | **授权检查 / createClient** | `resolveKitApi` | `crates/alia-extension-host/src/plugin-host/core.rs:568` | 目前取 getHostClientFactory，检查 apis:invoke 权限，再构造带归属的 Client。 | 权限前置校验器（apis:invoke）与归属绑定 Client 实例 | Rust 核心实现 |
+| `K13` | Extension-hosted Kit | **扩展提供 Kit** | `createExtensionKitRegistry.provide` | `crates/alia-extension-host/src/plugin-host/core.rs:648` | 仅 root setup 可 provide；对照 manifest 声明填注册事务。 | RootSetup 独占的 Kit Provide 事务提交通道 | Rust 核心实现 |
+| `K14` | Extension-hosted Kit | **Provider handlers 储存** | `captureProviderEndpoint` | `crates/alia-extension-host/src/plugin-host/hosted-kits.rs:701` | 登记并校验插件声明的 RPC methods 与 events 处理器签名，纳入扩展方法路由表。 | 已接受并注册的端点处理器 Map（accepted endpoint handlers） | Rust 核心实现 |
+| `K15` | Kit 远程与传输闭环 | **resolveKitApi · RPC 消费闭环** | `pub async fn resolve_kit_api` | `crates/alia-extension-host/src/plugin-host/kit-rpc.rs:77` | 为合法授权的消费方提供强类型 Kit 客户端代理，将远端方法调用与事件订阅路由至对应 ExtensionSession。 | Extension-Hosted Kit 消费调用路由器（resolveKitApi RPC 转发链） | Rust 核心实现 |
 | `K16` | 通道积木 | **扩展 / Module 通道** | `createExtensionChannelScope / createModuleChannelScope` | `crates/alia-extension-host/src/channels/index.rs:43` | 把身份和已有 Eventa context 组成 scope；module 与 extension 共享同一 context。本函数不注册订阅或提供清理。 | identity + context reference | Rust 核心实现 |
-| `K17` | 通道积木 | **原生 WebSocket 封装** | `createWebSocketHostChannel / createWebSocketExtensionTransport` | `crates/alia-extension-host/src/channels/remote/websocket/index.rs:15` | 把调用方已连接的 WebSocket 包装成 Eventa context；不负责完整连接生命周期。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K18` | 尚未完整接通 | **插件传输通道工厂** | `createPluginContext` | `crates/alia-extension-host/src/plugin-host/runtimes/transport/index.rs:22` | 仅 in-memory 实现；WebSocket / Wasm / Subprocess 传输通道统一实现。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K19` | 尚未完整接通 | **Web transport 工厂** | `createPluginContext` | `crates/alia-extension-host/src/plugin-host/runtimes/web/index.rs:21` | 仅 in-memory 实现；websocket / web-worker 分支 throw 未实现。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K20` | 尚未完整接通 | **远程扩展启动占位** | `setupRemotePluginScope` | `crates/alia-extension-host/src/plugin/remote/index.rs:7` | 函数体为空，不能标成完整的远程扩展启动流程。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K21` | Extension Kits | **Widget 扩展面板作者 API** | `createWidget` | `crates/alia-plugin-protocol/src/kits/widget/index.rs:68` | 使用 Extension widgetKit，把独立交互组件注册/挂载到桌面宿主。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K22` | Extension Kits | **Tool 作者 API** | `registerTools` | `crates/alia-plugin-protocol/src/kits/tool/index.rs:59` | 通过 Tool Kit 注册工具和 prompt，属于宿主工具可扩展点。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `K23` | Extension Kits | **Widget Kit 描述** | `widgetPluginKitDescriptor` | `crates/alia-extension-host/src/kits/widget/index.rs:18` | 定义桌面 widget 的能力与配置契约。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `K17` | 通道积木 | **原生 WebSocket 封装** | `createWebSocketHostChannel / createWebSocketExtensionTransport` | `crates/alia-extension-host/src/channels/remote/websocket/index.rs:15` | 把调用方已连接的 WebSocket 包装成 Eventa context；不负责完整连接生命周期。 | WebSocket Channel Context 适配器（已鉴权双工消息流） | Rust 核心实现 |
+| `K18` | Kit 远程与传输闭环 | **插件传输通道工厂** | `createPluginContext` | `crates/alia-extension-host/src/plugin-host/runtimes/transport/index.rs:22` | 服务端多传输通道工厂：统一创建 in-memory、WebSocket 与受控子进程（subprocess）插件连接通道。 | 统一插件传输通道工厂（in-memory / websocket / subprocess） | Rust 核心实现 |
+| `K19` | Kit 远程与传输闭环 | **Web transport 工厂** | `createPluginContext` | `crates/alia-extension-host/src/plugin-host/runtimes/web/index.rs:21` | 浏览器端传输通道工厂：统一封装 in-memory 与 WebSocket 插件通信链路。 | Web 端插件传输工厂（in-memory / websocket / web-worker 通道） | Rust 核心实现 |
+| `K20` | Kit 远程与传输闭环 | **远程扩展会话协调器** | `pub async fn connect_remote_extension` | `crates/alia-extension-host/src/plugin/remote/index.rs:7` | 管理远程插件的 WebSocket 握手鉴权、心跳保活与 ExtensionSession 绑定。 | 远程扩展接入引导协调器（连接握手 + Session 绑定） | Rust 核心实现 |
+| `K21` | Extension Kits | **Widget 扩展面板作者 API** | `createWidget` | `crates/alia-plugin-protocol/src/kits/widget/index.rs:68` | 通过 WidgetKit 在 WebUI 控制台扩展插槽中注册或卸载自定义交互微件面板。 | 扩展面板描述契约与动态 UI Slot 挂载描述符 | Rust 核心实现 |
+| `K22` | Extension Kits | **Tool 作者 API** | `registerTools` | `crates/alia-plugin-protocol/src/kits/tool/index.rs:59` | 通过 Tool Kit 注册工具和 prompt，属于宿主工具可扩展点。 | ToolKit 作者注册表契约（工具名称 / Schema / 提示词注入） | Rust 核心实现 |
+| `K23` | Extension Kits | **Widget Kit 描述** | `widgetPluginKitDescriptor` | `crates/alia-extension-host/src/kits/widget/index.rs:18` | 定义扩展面板（Widget）的挂载位置、能力范围与配置表单 Schema 契约。 | WidgetKit 扩展微件能力与配置 Schema 注册表 | Rust 核心实现 |
 | `K24` | Extension Kits | **ExtensionToolRegistry** | `ExtensionToolRegistry` | `crates/alia-extension-host/src/kits/tool/registry.rs:46` | 归属 session/module 的工具注册表，卸载时清理所有者 scope。 | tools / toolset prompts | Rust 核心实现 |
 | `K25` | Extension Kits | **内置 Kit 组装** | `createBuiltInExtensionKits` | `crates/alia-extension-host/src/kits/index.rs:101` | 注册 Widget/Widget 描述与 Widget/Tool 客户端工厂；逆序撤注册。 | HostSourceLease[] | Rust 核心实现 |
 
@@ -1291,10 +1278,10 @@
 | `K25` (内置 Kit 组装) | `K24` (ExtensionToolRegistry) | 调用 (`call`) | Tool Registry |
 | `K21` (Widget 扩展面板作者 API) | `K11` (use / tryUse / watch) | 调用 (`call`) | kits.use(widgetKit) |
 | `K22` (Tool 作者 API) | `K11` (use / tryUse / watch) | 调用 (`call`) | kits.use(toolKit) |
-| `K14` (Provider handlers 储存) | `K15` (Phase 4 消费闭环) | 尚未接通 (`unimplemented`) | 注册已实现，调用闭环后续 |
-| `K17` (原生 WebSocket 封装) | `K18` (插件传输通道工厂) | 尚未接通 (`unimplemented`) | 尚未由统一工厂接通 |
-| `K17` (原生 WebSocket 封装) | `K19` (Web transport 工厂) | 尚未接通 (`unimplemented`) | 尚未由统一工厂接通 |
-| `K20` (远程扩展启动占位) | `K17` (原生 WebSocket 封装) | 尚未接通 (`unimplemented`) | 仅预留启动位置 |
+| `K14` (Provider handlers 储存) | `K15` (resolveKitApi · RPC 消费闭环) | 调用 (`call`) | 暴露端点供消费方RPC调用 |
+| `K17` (原生 WebSocket 封装) | `K18` (插件传输通道工厂) | 调用 (`call`) | 由统一传输通道工厂装配 |
+| `K17` (原生 WebSocket 封装) | `K19` (Web transport 工厂) | 调用 (`call`) | 由统一传输通道工厂装配 |
+| `K20` (远程扩展会话协调器) | `K17` (原生 WebSocket 封装) | 调用 (`call`) | 启动远程扩展连接通道 |
 
 ---
 
@@ -1303,14 +1290,12 @@
 > **专题定位**：server-sdk 持有客户端连接；server-runtime 持有连接/模块注册表与路由策略。模型执行、会话历史和媒体资源所有者在别处。
 
 - **配套矢量图纸**：[职责组织图 (`19-platform-channel-organization.svg`)](./diagrams/19-platform-channel-organization.svg) ｜ [调用与数据流图 (`19-platform-channel-relations.svg`)](./diagrams/19-platform-channel-relations.svg) ｜ [Graphviz 组织图源](./diagrams/19-platform-channel-organization.dot) ｜ [Graphviz 关系图源](./diagrams/19-platform-channel-relations.dot)
-- **直接涉及源码范围**：`crates/alia-channel-gateway/src/client/index.rs`, `crates/alia-plugin-protocol/README.md`, `crates/alia-channel-gateway/src/index.rs`, `crates/alia-protocol/src/server-ws/codec.rs`, `crates/alia-channel-gateway/src/server-ws/alia/consumers.rs`, `crates/alia-channel-gateway/src/server/index.rs`, `crates/alia-channel-gateway/README.md`, `crates/alia-channel-gateway/src/client.rs`, `crates/alia-channel-gateway/src/extension-peer.rs`, `crates/alia-protocol/src/types/websocket/events.rs`
+- **直接涉及源码范围**：`crates/alia-channel-gateway/src/asset_bridge.rs`, `crates/alia-channel-gateway/src/client.rs`, `crates/alia-channel-gateway/src/client/index.rs`, `crates/alia-channel-gateway/src/extension-peer.rs`, `crates/alia-channel-gateway/src/index.rs`, `crates/alia-channel-gateway/src/server-ws/alia/consumers.rs`, `crates/alia-channel-gateway/src/server/index.rs`, `crates/alia-plugin-protocol/src/scene_binding.rs`, `crates/alia-protocol/src/server-ws/codec.rs`, `crates/alia-protocol/src/types/websocket/events.rs`
 
-#### 读图与工程边界守则
-- Client.connect() 的 ready 表示 transport 已连接且所需握手完成，不只是 WebSocket open。
-- 通道不持有 Chat Session，不执行语言模型；它是模块事件路由服务。
-- metadata.source 可由客户端声明；metadata.sender 是服务器根据实际连接填入的来源。
-- server-runtime 中有协议中性的 peer/heartbeat 逻辑迁移到 better-ws/server 的 TODO，不把 TODO 画成已完成。
-- sendOrThrow 只是对本地无法发送抛错，不代表对端应用已执行，也不是持久消息队列的投递保证。
+#### 工程边界守则
+- Module WebSocket Gateway 仅作为标准化事件路由与附件引用桥，不拥有任何会话状态或推理模型，所有发送方标识（sender.peerId / modules）由服务端强制可信填充。
+- 外部场景绑定（scene_binding）由服务端网关解析至持久会话 ID，确保外部渠道上下文与核心数字个体记忆连续衔接。
+- chat 媒体附件在通道层仅传递引用与 50MB 限额校验，实际二进制资产由核心存储与宿主按需按引取回。
 
 #### 节点与状态归属登记表（共 23 个节点）
 
@@ -1319,26 +1304,26 @@
 | `C01` | 客户端进程 | **ALIA Client** | `Client` | `crates/alia-channel-gateway/src/client.rs:215` | 面向外部模块的连接对象，封装握手、发事件、监听与资源获取。 | status / connectTask / eventListeners | Rust 核心实现 |
 | `C02` | 客户端底座 | **通用 WebSocket 底座** | `createClient` | `crates/alia-channel-gateway/src/client/index.rs:362` | 协议无关的 transport、重连、heartbeat 和 preparing 生命周期。 | transport state | Rust 核心实现 |
 | `C03` | 客户端进程 | **连接状态机** | `ClientStatus` | `crates/alia-channel-gateway/src/client.rs:29` | idle → connecting → authenticating → announcing → ready，另外含 reconnecting/closing/closed/failed。 | connectionStatus | Rust 核心实现 |
-| `C04` | 客户端握手 | **认证与宣告** | `prepareProtocolConnection` | `crates/alia-channel-gateway/src/client.rs:439` | 有 token 先 module:authenticate，再 extension:module:announce，等确认或 registry sync 中出现自身。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `C04` | 客户端握手 | **认证与宣告** | `prepareProtocolConnection` | `crates/alia-channel-gateway/src/client.rs:439` | 有 token 先 module:authenticate，再 extension:module:announce，等确认或 registry sync 中出现自身。 | WebSocket 握手阶段身份认证、能力宣告与心跳租约状态 | Rust 核心实现 |
 | `C05` | 客户端进程 | **事件发送 / 订阅** | `send / sendOrThrow / onEvent` | `crates/alia-channel-gateway/src/client.rs:344` | send 返回可用性；sendOrThrow 失败抛错；onEvent 分发给监听器并提供退订。 | event listeners | Rust 核心实现 |
 | `C06` | 客户端进程 | **多 Module 扩展 peer** | `WebSocketExtensionPeer` | `crates/alia-channel-gateway/src/extension-peer.rs:69` | 显式 peer 认证、扩展 announce 与多个 module announce 的便捷封装。 | extension identity / Client | Rust 核心实现 |
-| `C07` | 共享协议 | **事件封套** | `WebSocketBaseEvent` | `crates/alia-protocol/src/types/websocket/events.rs:24` | type、data、metadata.source、event.id/parentId、sender 和 route。source 声明与 server sender 分开。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `C07` | 共享协议 | **事件封套** | `WebSocketBaseEvent` | `crates/alia-protocol/src/types/websocket/events.rs:24` | type、data、metadata.source、event.id/parentId、sender 和 route。source 声明与 server sender 分开。 | WebSocketBaseEvent 统一信令封套（type / source / seq / data） | Rust 核心实现 |
 | `C08` | server-runtime 进程 | **服务生命周期** | `createServer` | `crates/alia-channel-gateway/src/server/index.rs:108` | 独立/嵌入服务器的 start/stop/restart/updateConfig。 | server handle / options | Rust 核心实现 |
 | `C09` | server-runtime 进程 | **通道 App** | `setupApp` | `crates/alia-channel-gateway/src/index.rs:215` | 组装 Axum Router、WebSocket handler、注册表、路由中间件和健康检查。 | dispose flag / instanceId | Rust 核心实现 |
-| `C10` | 服务端接收 | **事件解码与校验** | `parseEvent` | `crates/alia-protocol/src/server-ws/codec.rs:51` | 解析 envelope，接受基本 type/data 形状并处理 heartbeat 帧；不是每个业务负载的完整校验器。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `C10` | 服务端接收 | **事件解码与校验** | `parseEvent` | `crates/alia-protocol/src/server-ws/codec.rs:51` | 解析 envelope，接受基本 type/data 形状并处理 heartbeat 帧；不是每个业务负载的完整校验器。 | 强类型帧编解码器与 Schema 校验结果 | Rust 核心实现 |
 | `C11` | 服务端接收 | **认证处理** | `module / peer / extension authenticate` | `crates/alia-channel-gateway/src/index.rs:620` | 检查配置 token，设置连接 authenticated；未认证业务事件拒绝。 | peer authenticated | Rust 核心实现 |
 | `C12` | 服务端状态 | **Peer 注册表** | `peers Map` | `crates/alia-channel-gateway/src/index.rs:233` | 按连接 id 保存连接、认证、身份、heartbeat 和健康信息。 | Map<peerId, AuthenticatedPeer> | Rust 核心实现 |
 | `C13` | 服务端状态 | **Module 注册表** | `peersByModule / extensionModules` | `crates/alia-channel-gateway/src/index.rs:234` | 模块宣告关联到连接；同一个 extension peer 可宣告多个模块。 | module maps | Rust 核心实现 |
-| `C14` | 服务端接收 | **宣告 / Registry 同步** | `extension:module:announce` | `crates/alia-channel-gateway/src/index.rs:724` | 验证身份，注册模块并给客户端确认；registry:modules:sync 广播已知模块。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `C15` | 服务端路由 | **可信连接来源** | `metadata.sender` | `crates/alia-channel-gateway/src/index.rs:878` | 转发时重写 sender.peerId 与已宣告 modules，接收方据此识别真实发送连接。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `C16` | 服务端路由 | **目的地 / Policy** | `collectDestinations / forEachEventMiddlewares` | `crates/alia-channel-gateway/src/index.rs:883` | 应用目标筛选与策略，可 drop、定向 targets 或 broadcast。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `C14` | 服务端接收 | **宣告 / Registry 同步** | `extension:module:announce` | `crates/alia-channel-gateway/src/index.rs:724` | 校验模块身份并向所有已连接通道节点同步在线注册表与能力目录。 | 已连接节点宣告镜像表与实时在线模块注册表 | Rust 核心实现 |
+| `C15` | 服务端路由 | **可信连接来源** | `metadata.sender` | `crates/alia-channel-gateway/src/index.rs:878` | 转发时重写 sender.peerId 与已宣告 modules，接收方据此识别真实发送连接。 | 服务端强制重写的可信发送端元信息（sender.peerId / modules） | Rust 核心实现 |
+| `C16` | 服务端路由 | **目的地 / Policy** | `collectDestinations / forEachEventMiddlewares` | `crates/alia-channel-gateway/src/index.rs:883` | 应用目标筛选与策略，可 drop、定向 targets 或 broadcast。 | 路由目标选择器（drop / 定向 targets / broadcast 广播） | Rust 核心实现 |
 | `C17` | 服务端状态 | **Consumer 注册与选择** | `createConsumerOrchestrator` | `crates/alia-channel-gateway/src/server-ws/alia/consumers.rs:174` | 按 event/group 管理消费者，维护 round-robin/sticky 状态。 | registrations / cursors / sticky assignments | Rust 核心实现 |
-| `C18` | 服务端路由 | **选择策略** | `selectConsumerPeerId` | `crates/alia-channel-gateway/src/server-ws/alia/consumers.rs:117` | 在认证且健康的候选中按 first、priority、round-robin 或 sticky 选择。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `C19` | 服务端路由 | **转发 / 广播** | `consumer delivery / broadcast` | `crates/alia-channel-gateway/src/index.rs:901` | consumer 模式发一个被选连接；普通路由遍历符合条件的认证 peer，跳过发件人。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `C18` | 服务端路由 | **选择策略** | `selectConsumerPeerId` | `crates/alia-channel-gateway/src/server-ws/alia/consumers.rs:117` | 在认证且健康的候选中按 first、priority、round-robin 或 sticky 选择。 | 健康消费者负载均衡状态（first / priority / round-robin / sticky 游标） | Rust 核心实现 |
+| `C19` | 服务端路由 | **转发 / 广播** | `consumer delivery / broadcast` | `crates/alia-channel-gateway/src/index.rs:901` | consumer 模式发一个被选连接；普通路由遍历符合条件的认证 peer，跳过发件人。 | 多播与消费者单播投递分派器（自动跳过发送方自身） | Rust 核心实现 |
 | `C20` | 服务端生命周期 | **Heartbeat 与移除** | `markPeerAlive / health check` | `crates/alia-channel-gateway/src/index.rs:247` | 更新活跃时间；检测失活、发布健康变化；断开时撤销模块与 consumer。 | lastHeartbeatAt / healthy | Rust 核心实现 |
-| `C21` | 宿主会话边界 | **输入的外部场景绑定** | `overrides.binding / overrides.sessionId` | `crates/alia-plugin-protocol/README.md:22` | input:text 可带外部 scene binding；由宿主解析到持久会话。binding 优先于 sessionId。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `C22` | 资源访问 | **资源请求** | `getAsset` | `crates/alia-channel-gateway/src/client.rs:367` | asset:get:request 与 parentId 关联响应；默认10秒超时，finally 移除监听。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `C23` | 资源访问 | **资源所有者是 Stage** | `alia-asset:<id>` | `crates/alia-channel-gateway/README.md:44` | 聊天事件只带附件引用。Stage 返回数据；缺失/超过50MB/无回答拒绝。通道本身不存媒体。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `C21` | 宿主会话边界 | **输入的外部场景绑定** | `overrides.binding / overrides.sessionId` | `crates/alia-plugin-protocol/src/scene_binding.rs:22` | 解析 input:text 携带的外部场景绑定（scene binding）并映射至对应持久会话，binding 优先级高于显式 sessionId。 | 外部场景绑定解析表（external scene binding -> sessionId） | Rust 核心实现 |
+| `C22` | 资源访问 | **资源请求** | `getAsset` | `crates/alia-channel-gateway/src/client.rs:367` | asset:get:request 与 parentId 关联响应；默认10秒超时，finally 移除监听。 | asset:get:request 请求表与 10 秒关联超时计时器 | Rust 核心实现 |
+| `C23` | 资源访问 | **资源所有者是 Stage** | `alia-asset:<id>` | `crates/alia-channel-gateway/src/asset_bridge.rs:44` | 媒体附件仅在业务宿主与核心存储持久保存；通道层传递安全引用并在取回时强制校验 50MB 限额。 | 媒体附件引用桥与 50MB 传输限制校验器（通道零媒体存储） | Rust 核心实现 |
 
 #### 调用、数据、事件与契约关系表（共 30 条有向边）
 
@@ -1372,7 +1357,7 @@
 | `C20` (Heartbeat 与移除) | `C12` (Peer 注册表) | 生命周期 (`lifecycle`) | 健康 / 注销 |
 | `C21` (输入的外部场景绑定) | `C05` (事件发送 / 订阅) | 调用 (`call`) | input:text |
 | `C22` (资源请求) | `C19` (转发 / 广播) | 调用 (`call`) | asset:get:request |
-| `C19` (转发 / 广播) | `C23` (资源所有者是 Stage) | 调用 (`call`) | Stage 读取媒体 |
+| `C19` (转发 / 广播) | `C23` (资源所有者是 Stage) | 调用 (`call`) | WebUI 读取媒体 |
 | `C23` (资源所有者是 Stage) | `C22` (资源请求) | 数据流 (`data`) | 定向回应 parentId |
 
 ---
@@ -1382,9 +1367,9 @@
 > **专题定位**：这是独立的 Rust Axum API 与 Better Auth/OIDC 服务。聊天同步 WebSocket 与模块 server channel 是两套不同接口。资源领域服务负责持久数据，模型网关负责托管推理。
 
 - **配套矢量图纸**：[职责组织图 (`20-platform-backend-organization.svg`)](./diagrams/20-platform-backend-organization.svg) ｜ [调用与数据流图 (`20-platform-backend-relations.svg`)](./diagrams/20-platform-backend-relations.svg) ｜ [Graphviz 组织图源](./diagrams/20-platform-backend-organization.dot) ｜ [Graphviz 关系图源](./diagrams/20-platform-backend-relations.dot)
-- **直接涉及源码范围**：`crates/alia-server/src/app.rs`, `crates/alia-server/src/libs/request-auth.rs`, `crates/alia-server/src/routes/chat-ws/rpc.rs`, `crates/alia-server/src/routes/chat-ws/runtime.rs`, `crates/alia-server/src/schemas/characters.rs`, `crates/alia-server/src/schemas/chats.rs`, `crates/alia-server/src/server.rs`, `crates/alia-server/src/services/domain/chats.rs`, `crates/alia-auth-service/src/auth.rs`, `crates/alia-auth-service/src/server.rs`, `crates/alia-server/src/router.rs`, `crates/alia-auth-service/src/schema.rs`
+- **直接涉及源码范围**：`crates/alia-auth-service/src/auth.rs`, `crates/alia-auth-service/src/schema.rs`, `crates/alia-auth-service/src/server.rs`, `crates/alia-server/src/app.rs`, `crates/alia-server/src/libs/request-auth.rs`, `crates/alia-server/src/router.rs`, `crates/alia-server/src/routes/chat-ws/rpc.rs`, `crates/alia-server/src/routes/chat-ws/runtime.rs`, `crates/alia-server/src/schemas/characters.rs`, `crates/alia-server/src/schemas/chats.rs`, `crates/alia-server/src/server.rs`, `crates/alia-server/src/services/domain/chats.rs`
 
-#### 读图与工程边界守则
+#### 工程边界守则
 - 两个 WebSocket 网络应分图：Hosted Chat WS 用来存取/同步产品会话；server-channel 路由模块事件。
 - PostgreSQL 同一数据库并不意味着服务间业务数据所有权混同；API 负责共享迁移，Auth 不重复运行迁移。
 - 客户端可以直连用户配置的模型服务；托管网关只是其中一条推理路径。
@@ -1395,32 +1380,32 @@
 
 | 节点 ID | 职责分组 | 名称 | 导出符号 (`symbol`) | 源码路径与行号 | 职责边界 | 状态与生命周期归属 | 架构分层 |
 |---|---|---|---|---|---|---|---|
-| `B01` | 部署进程 | **本地部署边缘** | `caddy` | `crates/alia-server/src/router.rs:128` | 本地共享公开入口把 Auth 与资源 API 路由到不同进程。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B02` | 部署进程 | **Resource API 进程** | `runApiServer` | `crates/alia-server/src/server.rs:22` | createApp → serve Rust Axum HTTP → injectWebSocket。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `B01` | 部署进程 | **本地部署边缘** | `caddy` | `crates/alia-server/src/router.rs:128` | 本地共享公开入口把 Auth 与资源 API 路由到不同进程。 | 统一反代与边缘入口路由配置（Auth 与资源 API 边界隔离） | Rust 核心实现 |
+| `B02` | 部署进程 | **Resource API 进程** | `runApiServer` | `crates/alia-server/src/server.rs:22` | createApp → serve Rust Axum HTTP → injectWebSocket。 | Rust Axum HTTP/SSE/WS 服务器监听实例与优雅停机令牌 | Rust 核心实现 |
 | `B03` | API 进程 | **API 依赖装配** | `createApp` | `crates/alia-server/src/app.rs:524` | injeca 装配数据库、Redis、对象存储、领域服务、网关与遥测。 | app dependency container | Rust 核心实现 |
-| `B04` | API 进程 | **Rust Axum 路由与中间件** | `buildApp` | `crates/alia-server/src/app.rs:152` | CORS、会话认证、body limits、业务 routes、WebSocket 和错误处理。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `B04` | API 进程 | **Rust Axum 路由与中间件** | `buildApp` | `crates/alia-server/src/app.rs:152` | CORS、会话认证、body limits、业务 routes、WebSocket 和错误处理。 | Axum 路由树与中间件管线（CORS / Auth / BodyLimit / Error） | Rust 核心实现 |
 | `B05` | API 认证边界 | **Token / JWKS 校验** | `resolveRequestAuth` | `crates/alia-server/src/libs/request-auth.rs:147` | 资源 API 校验由 Auth 签发的访问凭证，解析对应用户。 | JWKS cache | Rust 核心实现 |
 | `B06` | Auth 进程 | **Auth 进程** | `createAuthServer` | `crates/alia-auth-service/src/server.rs:128` | 单独构建认证 HTTP 服务、DB/Redis、邮件和资源 API 客户端。 | 独立 container | Rust 核心实现 |
 | `B07` | Auth 进程 | **Better Auth / OIDC** | `createAuth` | `crates/alia-auth-service/src/auth.rs:436` | 注册认证插件，签发 OIDC/JWT；预置 WebUI 面板 / 外部扩展客户端 客户端。 | auth sessions / issuer keys | Rust 核心实现 |
-| `B08` | 持久数据契约 | **Auth 所有的数据库契约** | `auth-shared schema` | `crates/alia-auth-service/src/schema.rs:4` | 账户、会话、认证及 OAuth/OIDC 相关 schema 由 auth-shared 定义。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `B08` | 持久数据契约 | **Auth 所有的数据库契约** | `auth-shared schema` | `crates/alia-auth-service/src/schema.rs:4` | 账户、会话、认证及 OAuth/OIDC 相关 schema 由 auth-shared 定义。 | Auth 域专属 SQLx 迁移与账户/凭证/JWKS 表状态 | Rust 核心实现 |
 | `B09` | 基础设施 | **PostgreSQL / 迁移** | `datastore:db` | `crates/alia-server/src/app.rs:545` | API 建立 Rust SQLx (SQLite-vec / PgVector) 数据连接并负责共享数据库迁移。 | 关系持久数据 | Rust 核心实现 |
 | `B10` | 基础设施 | **Redis** | `datastore:redis` | `crates/alia-server/src/app.rs:575` | 用于跨实例同步、cache、streams 和并发/计费协调所需状态。 | 共享运行状态 | Rust 核心实现 |
 | `B11` | 基础设施 | **S3 对象存储** | `createS3ObjectStore` | `crates/alia-server/src/app.rs:603` | 模型、资源文件等的二进制对象；本地 Compose 提供 RustFS。 | binary objects | Rust 核心实现 |
-| `B12` | 资源领域服务 | **角色资源服务** | `createCharacterService` | `crates/alia-server/src/app.rs:653` | 面向产品角色资源的业务层，和用户会话角色卡对象不同。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B13` | 资源领域服务 | **角色卡服务** | `createCharacterCardService` | `crates/alia-server/src/app.rs:658` | 持久角色卡及字段，接 /api/v1/character-cards。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B14` | 资源领域服务 | **形象 / 声音资源** | `createVoicePackService / createDisplayModelService` | `crates/alia-server/src/app.rs:727` | voice-pack 和 display-model 是资源领域服务；实际渲染和播放在客户端。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B15` | 资源领域服务 | **Provider 配置 / 目录** | `createProviderService / createProviderCatalogService` | `crates/alia-server/src/app.rs:674` | 管理用户配置与托管能力目录；配置加密依赖 envelopeCrypto。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `B12` | 资源领域服务 | **角色资源服务** | `createCharacterService` | `crates/alia-server/src/app.rs:653` | 面向产品角色资源的业务层，和用户会话角色卡对象不同。 | 系统角色模板资源服务状态（与运行期会话角色卡分离） | Rust 核心实现 |
+| `B13` | 资源领域服务 | **角色卡服务** | `createCharacterCardService` | `crates/alia-server/src/app.rs:658` | 持久角色卡及字段，接 /api/v1/character-cards。 | 持久化角色卡存储接口（/api/v1/character-cards CRUD） | Rust 核心实现 |
+| `B14` | 资源领域服务 | **语音与扩展资源目录服务** | `createVoicePackService / createDisplayModelService` | `crates/alia-server/src/app.rs:727` | 托管系统级语音包清单与已注册扩展包的静态元数据分发服务。 | 语音包资源清单与外部扩展包元数据服务（实际合成与扩展渲染分离） | Rust 核心实现 |
+| `B15` | 资源领域服务 | **Provider 配置 / 目录** | `createProviderService / createProviderCatalogService` | `crates/alia-server/src/app.rs:674` | 管理用户配置与托管能力目录；配置加密依赖 envelopeCrypto。 | 用户加密配置仓库（envelopeCrypto）与模型目录状态 | Rust 核心实现 |
 | `B16` | 会话同步领域 | **ChatService** | `createChatService` | `crates/alia-server/src/services/domain/chats.rs:49` | 创建/读取会话成员，写入消息并分配顺序号，按用户授权读取。 | chat / member / message persistence | Rust 核心实现 |
 | `B17` | 会话同步运行时 | **Hosted Chat WS Runtime** | `createChatWsRuntime` | `crates/alia-server/src/routes/chat-ws/runtime.rs:16` | 拥有进程内连接注册和 Redis 广播协调。与 server-runtime peers 表不同。 | ChatConnectionRegistry / BroadcastCoordinator | Rust 核心实现 |
-| `B18` | 会话同步运行时 | **sendMessages / pullMessages RPC** | `registerChatRpcHandlers` | `crates/alia-server/src/routes/chat-ws/rpc.rs:37` | 解析请求 → pushMessages → pull newly stored messages → 按会话成员广播；pull 按 seq 增量获取。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B19` | 会话同步运行时 | **Chat WS v1 / v2** | `createChatWsV1Handlers / createChatWsV2Handlers` | `crates/alia-server/src/app.rs:215` | /ws/chat 与 /ws/v2/chat 共用核心 runtime；v2 在 open 后做认证。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B20` | 持久数据契约 | **核心资源表** | `character / avatarModel / characterCapabilities / prompts` | `crates/alia-server/src/schemas/characters.rs:47` | 角色资源表族；characterRelations 是 ORM 表关系定义，不是情感羁绊引擎。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B21` | 持久数据契约 | **会话与消息表** | `chats / chatMembers / messages` | `crates/alia-server/src/schemas/chats.rs:44` | chatId、成员、role、seq、content、mediaIds、stickerIds 等；不是运行时全部状态的镜像。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B22` | 托管模型网关 | **托管推理路由器** | `createLlmRouterService` | `crates/alia-server/src/app.rs:819` | 托管网关的 provider route、并发额度、key 轮换及尝试逻辑；不是 Stage core-agent。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B23` | 托管模型网关 | **OpenAI / Audio API** | `v1Routes.openaiRoutes / audioRoutes` | `crates/alia-server/src/app.rs:431` | 托管 chat-completions、responses 与 speech 服务的协议入口。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
-| `B24` | 托管模型网关 | **语音实时通路** | `audio speech WS / transcriptions stream` | `crates/alia-server/src/app.rs:264` | 独立实时语音合成 WS 与转写流入口。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `B18` | 会话同步运行时 | **sendMessages / pullMessages RPC** | `registerChatRpcHandlers` | `crates/alia-server/src/routes/chat-ws/rpc.rs:37` | 解析请求 → pushMessages → pull newly stored messages → 按会话成员广播；pull 按 seq 增量获取。 | Chat WS RPC 同步游标（sendMessages 幂等写 / pullMessages seq 增量拉取） | Rust 核心实现 |
+| `B19` | 会话同步运行时 | **Chat WS v1 / v2** | `createChatWsV1Handlers / createChatWsV2Handlers` | `crates/alia-server/src/app.rs:215` | /ws/chat 与 /ws/v2/chat 共用核心 runtime；v2 在 open 后做认证。 | Chat WebSocket 双版本鉴权入口（/ws/chat 与 /ws/v2/chat 复用核心） | Rust 核心实现 |
+| `B20` | 持久数据契约 | **核心实体关系数据库表** | `character / avatarModel / characterCapabilities / prompts` | `crates/alia-server/src/schemas/characters.rs:47` | 基于 SQLx 定义角色、配置与模块关联的结构化数据库表家族（严格区分数据库外键与心理关系引擎）。 | PostgreSQL / SQLite 核心资源表（ORM 实体外键关联模型） | Rust 核心实现 |
+| `B21` | 持久数据契约 | **会话与消息表** | `chats / chatMembers / messages` | `crates/alia-server/src/schemas/chats.rs:44` | chatId、成员、role、seq、content、mediaIds、stickerIds 等；不是运行时全部状态的镜像。 | 持久化会话与消息表（chatId / seq / role / content / mediaIds） | Rust 核心实现 |
+| `B22` | 托管模型网关 | **托管推理路由器** | `createLlmRouterService` | `crates/alia-server/src/app.rs:819` | 托管网关的 provider route、并发额度、key 轮换及尝试逻辑；不是 WebUI core-agent。 | 服务端推理代理路由器（Provider 路由 / 并发额度 / Key 轮换） | Rust 核心实现 |
+| `B23` | 托管模型网关 | **OpenAI / Audio API** | `v1Routes.openaiRoutes / audioRoutes` | `crates/alia-server/src/app.rs:431` | 托管 chat-completions、responses 与 speech 服务的协议入口。 | 兼容 OpenAI 的统一推理与语音协议入口（completions / speech） | Rust 核心实现 |
+| `B24` | 托管模型网关 | **语音实时通路** | `audio speech WS / transcriptions stream` | `crates/alia-server/src/app.rs:264` | 独立实时语音合成 WS 与转写流入口。 | 独立实时流式语音合成 WebSocket 与音频转写流入口 | Rust 核心实现 |
 | `B25` | 托管服务支撑 | **用量 / 计费 / 请求日志** | `billingService / llmBilling / flux / requestLog` | `crates/alia-server/src/app.rs:742` | 托管服务用量、余额交易、支付与请求记录；不能当作角色记忆。 | 账本 / 请求记录 | Rust 核心实现 |
-| `B26` | 跨服务生命周期 | **账户删除协作** | `createUserDeletionService` | `crates/alia-server/src/app.rs:790` | Auth 删除前调用 API 删除业务资源；Auth 和 API 各自拥有相应数据处理。 | 本图未单独列出；按相连对象与源码确认。 | Rust 核心实现 |
+| `B26` | 跨服务生命周期 | **账户删除协作** | `createUserDeletionService` | `crates/alia-server/src/app.rs:790` | Auth 删除前调用 API 删除业务资源；Auth 和 API 各自拥有相应数据处理。 | 跨服务账户注销编排器（先清理资源域，再注销认证主体） | Rust 核心实现 |
 
 #### 调用、数据、事件与契约关系表（共 31 条有向边）
 
@@ -1439,7 +1424,7 @@
 | `B03` (API 依赖装配) | `B11` (S3 对象存储) | 数据流 (`data`) | 对象存储 |
 | `B04` (Rust Axum 路由与中间件) | `B12` (角色资源服务) | 调用 (`call`) | characters routes |
 | `B04` (Rust Axum 路由与中间件) | `B13` (角色卡服务) | 调用 (`call`) | character-cards routes |
-| `B04` (Rust Axum 路由与中间件) | `B14` (形象 / 声音资源) | 调用 (`call`) | display-model / voice-pack routes |
+| `B04` (Rust Axum 路由与中间件) | `B14` (语音与扩展资源目录服务) | 调用 (`call`) | display-model / voice-pack routes |
 | `B04` (Rust Axum 路由与中间件) | `B15` (Provider 配置 / 目录) | 调用 (`call`) | providers routes |
 | `B04` (Rust Axum 路由与中间件) | `B19` (Chat WS v1 / v2) | 调用 (`call`) | WebSocket upgrade |
 | `B19` (Chat WS v1 / v2) | `B17` (Hosted Chat WS Runtime) | 调用 (`call`) | 共用 runtime |
@@ -1448,10 +1433,10 @@
 | `B18` (sendMessages / pullMessages RPC) | `B17` (Hosted Chat WS Runtime) | 调用 (`call`) | 消息广播 |
 | `B17` (Hosted Chat WS Runtime) | `B10` (Redis) | 数据流 (`data`) | 跨实例广播 |
 | `B16` (ChatService) | `B21` (会话与消息表) | 数据流 (`data`) | 持久消息 |
-| `B12` (角色资源服务) | `B20` (核心资源表) | 数据流 (`data`) | 角色表族 |
-| `B20` (核心资源表) | `B09` (PostgreSQL / 迁移) | 数据流 (`data`) | 关系数据 |
+| `B12` (角色资源服务) | `B20` (核心实体关系数据库表) | 数据流 (`data`) | 角色表族 |
+| `B20` (核心实体关系数据库表) | `B09` (PostgreSQL / 迁移) | 数据流 (`data`) | 关系数据 |
 | `B21` (会话与消息表) | `B09` (PostgreSQL / 迁移) | 数据流 (`data`) | 关系数据 |
-| `B14` (形象 / 声音资源) | `B11` (S3 对象存储) | 数据流 (`data`) | 二进制资源 |
+| `B14` (语音与扩展资源目录服务) | `B11` (S3 对象存储) | 数据流 (`data`) | 二进制资源 |
 | `B04` (Rust Axum 路由与中间件) | `B23` (OpenAI / Audio API) | 调用 (`call`) | 托管协议入口 |
 | `B23` (OpenAI / Audio API) | `B22` (托管推理路由器) | 调用 (`call`) | 模型路由 |
 | `B22` (托管推理路由器) | `B25` (用量 / 计费 / 请求日志) | 调用 (`call`) | 记录 / 计费 |
@@ -1465,9 +1450,9 @@
 > **专题定位**：把取消、清理、排队、去重、有界保留与订阅需求拆成独立原语。它们解决执行可靠性，不拥有角色人格或对话记忆。
 
 - **配套矢量图纸**：[职责组织图 (`21-lifetime-organization.svg`)](./diagrams/21-lifetime-organization.svg) ｜ [调用与数据流图 (`21-lifetime-relations.svg`)](./diagrams/21-lifetime-relations.svg) ｜ [Graphviz 组织图源](./diagrams/21-lifetime-organization.dot) ｜ [Graphviz 关系图源](./diagrams/21-lifetime-relations.dot)
-- **直接涉及源码范围**：`crates/alia-stream-kit/README.md`
+- **直接涉及源码范围**：`crates/alia-stream-kit/src/batcher.rs`, `crates/alia-stream-kit/src/catch-up-feed.rs`, `crates/alia-stream-kit/src/cooldown.rs`, `crates/alia-stream-kit/src/demand-union.rs`, `crates/alia-stream-kit/src/latest.rs`, `crates/alia-stream-kit/src/lease-table.rs`, `crates/alia-stream-kit/src/queue.rs`, `crates/alia-stream-kit/src/retention-buffer.rs`, `crates/alia-stream-kit/src/scope.rs`, `crates/alia-stream-kit/src/sequence-tracker.rs`, `crates/alia-stream-kit/src/stream.rs`, `crates/alia-stream-kit/src/task.rs`, `crates/alia-stream-kit/src/watermark.rs`
 
-#### 读图与工程边界守则
+#### 工程边界守则
 - Task.done表示工作终态；Task.closed表示清理完成；两者不能混用。
 - Task.finish不会abort signal；已交接出去的播放可以继续。
 - Queue.clear只清待执行项，Scope关闭不等待子Scope清理完成。
@@ -1526,9 +1511,9 @@
 > **专题定位**：从Agent或语音产生记录，经Web本地采集器或Rust 服务端 TraceHub，到时间轴、指标与导出。记录用于观测，不等于角色可回忆的内容。
 
 - **配套矢量图纸**：[职责组织图 (`22-observability-organization.svg`)](./diagrams/22-observability-organization.svg) ｜ [调用与数据流图 (`22-observability-relations.svg`)](./diagrams/22-observability-relations.svg) ｜ [Graphviz 组织图源](./diagrams/22-observability-organization.dot) ｜ [Graphviz 关系图源](./diagrams/22-observability-relations.dot)
-- **直接涉及源码范围**：`crates/alia-trace-kit/README.md`, `packages/stage-ui/src/composables/use-trace.ts`
+- **直接涉及源码范围**：`crates/alia-trace-kit/src/collector/collector.rs`, `crates/alia-trace-kit/src/core/clock.rs`, `crates/alia-trace-kit/src/core/feed.rs`, `crates/alia-trace-kit/src/core/schema.rs`, `crates/alia-trace-kit/src/core/series-ring.rs`, `crates/alia-trace-kit/src/core/sink.rs`, `crates/alia-trace-kit/src/hub.rs`, `crates/alia-trace-kit/src/profiles/agent.rs`, `crates/alia-trace-kit/src/projections/event-log.rs`, `crates/alia-trace-kit/src/projections/metrics.rs`, `crates/alia-trace-kit/src/projections/reader.rs`, `crates/alia-trace-kit/src/projections/timeline.rs`, `crates/alia-trace-kit/src/views/reader.rs`, `packages/stage-ui/src/composables/use-trace.ts`, `packages/stage-ui/src/stores/devtools/io-tracer-export.ts`, `packages/stage-ui/src/stores/devtools/io-tracer.ts`
 
-#### 读图与工程边界守则
+#### 工程边界守则
 - Web各tab各有collector并通过BroadcastChannel交换数据；桌面Hub集中拥有collector。
 - Collector保留有界历史与活跃pinned状态；关闭buffer不等于停止所有记录。
 - source/epoch/seq与clock一起处理重启、乱序、重复和不同时钟域。
@@ -1596,33 +1581,33 @@
 
 ### 专题 23：项目唯一内置前端：WebUI 控制台面板（测试沙盒对话、配置中心与插件扩展管理） (`webui-console`)
 
-> **专题定位**：项目本身只存在这一个内置 WebUI 面板（apps/webui），通过 REST + SSE 与 Rust 本机核心实例实时同步本地持久状态。面板按“工作台（运行概览、测试沙盒直接对话）、数字个体（身份与人格、记忆管理）、连接与能力（接入渠道、模型服务［含最多 6 路并发探活与日常对话/后台活动/内部推理/目标决策四维分工］、扩展管理、技能管理）、配置与运行（配置文件、自动化任务、数据与日志、权限与审批、系统设置）”组织，使一切核心配置、直接对话验证与插件扩展均可在 WebUI 内完成。
+> **专题定位**：apps/webui 是系统唯一内置的前端控制台面板，通过 REST + SSE 与 Rust 本机核心实例实时同步本地持久状态。面板按“工作台（运行概览、测试沙盒直接对话）、数字个体（身份与人格、记忆管理）、连接与能力（接入渠道、模型服务［含最多 6 路并发探活与日常对话/后台活动/内部推理/目标决策四维分工］、扩展管理、技能管理）、配置与运行（配置文件、自动化任务、数据与日志、权限与审批、系统设置）”四大区域组织。
 
 - **配套矢量图纸**：[职责组织图 (`23-webui-console-organization.svg`)](./diagrams/23-webui-console-organization.svg) ｜ [调用与数据流图 (`23-webui-console-relations.svg`)](./diagrams/23-webui-console-relations.svg) ｜ [Graphviz 组织图源](./diagrams/23-webui-console-organization.dot) ｜ [Graphviz 关系图源](./diagrams/23-webui-console-relations.dot)
 - **直接涉及源码范围**：`apps/webui`, `packages/stage-ui`, `packages/ui`, `packages/ui-trace`, `packages/ui-timeline`, `packages/timeline-canvas`
 
-#### 读图与工程边界守则
-- 项目只内置 apps/webui 一个前端面板，其他一切外部渠道、2D/3D 形象渲染、直播、游戏均通过“接入渠道”与“扩展管理”以插件方式扩展。
-- 工作台中的“测试沙盒”直接在 WebUI 面板内提供完整的对话交互体验，方便项目落地后开发者无需部署任何外部渠道即可直接验证对话、记忆与工具调用。
-- 模型服务支持按任务分工（日常对话 / 后台活动 / 内部推理 / 目标决策）指派不同模型，且切换模型时数字个体的身份与记忆持续保留。
+#### 工程边界守则
+- 项目只内置 apps/webui 一个前端面板，其余一切外部渠道、表现端、工具集与行业场景均通过“接入渠道”与“扩展管理”以插件方式按需扩展。
+- 工作台中的“测试沙盒”直接在 WebUI 面板内提供完整的对话交互体验，使开发者无需部署任何外部渠道即可直接验证多轮对话、记忆召回与工具调用。
+- 模型服务支持按任务分工（日常对话 / 后台活动 / 内部推理 / 目标决策）指派不同模型并计入并发探活健康度，模型切换不影响身份与记忆持久性。
 
 #### 节点与状态归属登记表（共 14 个节点）
 
 | 节点 ID | 职责分组 | 名称 | 导出符号 (`symbol`) | 源码路径与行号 | 职责边界 | 状态与生命周期归属 | 架构分层 |
 |---|---|---|---|---|---|---|---|
-| `UI-ROOT` | 工作台 (Workbench) | **WebUI 控制台根壳与实时同步栏 · apps/webui/src/App.vue** | `WebUIConsoleApp` | `apps/webui/src/App.vue:1` | 项目唯一的内置前端面板：顶部维护本机实例授权态与 REST + SSE 实时同步连接，左侧提供四大分组导航（工作台、数字个体、连接与能力、配置与运行）。 | REST + SSE 实时同步连接态 | WebUI 面板前端 |
-| `UI-OVERVIEW` | 工作台 (Workbench) | **运行概览面板 · apps/webui/src/pages/workbench/overview.vue** | `WorkbenchOverviewPage` | `apps/webui/src/pages/workbench/overview.vue:1` | 汇总展示本机实例运行状态、当前激活的四维模型分工、已启用接入渠道/扩展插件数量与近期活动指标。 | 概览聚合视图态 | WebUI 面板前端 |
-| `UI-SANDBOX` | 工作台 (Workbench) | **测试沙盒（内置直接对话体验台） · apps/webui/src/pages/workbench/sandbox.vue** | `WorkbenchSandboxPage` | `apps/webui/src/pages/workbench/sandbox.vue:1` | 在项目 WebUI 面板内直接实现与数字个体的多模态/语音流式对话功能，实时检视日常对话/内部推理/目标决策输出、记忆命中与工具调用，利于项目落地与开发者开箱直接体验。 | 沙盒会话与流式消息态 | WebUI 面板前端 |
-| `UI-IDENTITY` | 数字个体 (Digital Individual) | **身份与人格配置页 · apps/webui/src/pages/individual/identity.vue** | `IdentityAndPersonaPage` | `apps/webui/src/pages/individual/identity.vue:1` | 配置数字个体的核心身份、人设提示词與模块继承覆盖（对接专题 03 alia-core-character），切换模型时身份持续保留。 | 身份与人设编辑草稿态 | WebUI 面板前端 |
-| `UI-MEMORY` | 数字个体 (Digital Individual) | **记忆管理与笔记页 · apps/webui/src/pages/individual/memory.vue** | `MemoryManagementPage` | `apps/webui/src/pages/individual/memory.vue:1` | 检索、编辑、固定或清理长期记忆条目（MemoryEntry）与角色持久笔记（Notebook，对接专题 09/10/11），切换模型时记忆持续保留。 | 记忆筛选与分页视图态 | WebUI 面板前端 |
-| `UI-CHANNELS` | 连接与能力 (Connections & Capabilities) | **接入渠道管理页 · apps/webui/src/pages/capabilities/channels.vue** | `ConnectedChannelsPage` | `apps/webui/src/pages/capabilities/channels.vue:1` | 配置与监控通过 alia-channel-gateway（专题 19）接入的所有外部可扩展渠道（如外部 IM、独立 WebChat、语音终端等）。 | 已接入渠道列表与连接状态 | WebUI 面板前端 |
-| `UI-MODELS` | 连接与能力 (Connections & Capabilities) | **模型服务与四维使用分工页 · apps/webui/src/pages/capabilities/models.vue** | `ModelServicesPage` | `apps/webui/src/pages/capabilities/models.vue:1` | 管理已接入模型服务商地址与密钥、获取/手动添加模型、执行批量并发探活测试（每次最多 6 个并行调用并计入健康度），并配置 Alia 使用分工（日常对话 / 后台活动 / 内部推理 / 目标决策，对接专题 07）。 | 服务商列表、探活进度与四维分工映射 | WebUI 面板前端 |
-| `UI-EXTENSIONS` | 连接与能力 (Connections & Capabilities) | **扩展管理页（插件中心） · apps/webui/src/pages/capabilities/extensions.vue** | `ExtensionsManagementPage` | `apps/webui/src/pages/capabilities/extensions.vue:1` | 管理通过 alia-extension-host 与 alia-plugin-protocol（专题 17/18）加载的所有外部插件扩展（含安装目录、启停开关、Kit 插槽状态与动态工具租约）。 | 插件注册表与启停配置态 | WebUI 面板前端 |
-| `UI-SKILLS` | 连接与能力 (Connections & Capabilities) | **技能管理页 · apps/webui/src/pages/capabilities/skills.vue** | `SkillsManagementPage` | `apps/webui/src/pages/capabilities/skills.vue:1` | 管理数字个体可调用的内建与扩展工具定义、技能配方（Recipe，对接专题 08/09）及启用策略。 | 技能与工具目录视图态 | WebUI 面板前端 |
-| `UI-PROFILES` | 配置与运行 (Configuration & Runtime) | **配置文件与自动化任务页 · apps/webui/src/pages/runtime/profiles-automation.vue** | `ProfilesAndAutomationPage` | `apps/webui/src/pages/runtime/profiles-automation.vue:1` | 管理多套运行时配置文件（Config Profiles）导入导出，以及后台自动化任务（Automation，对接专题 09/11）的定时与触发规则。 | 配置快照与定时任务列表 | WebUI 面板前端 |
-| `UI-LOGS` | 配置与运行 (Configuration & Runtime) | **数据与日志（Trace 诊断）页 · apps/webui/src/pages/runtime/data-logs.vue** | `DataAndLogsTracePage` | `apps/webui/src/pages/runtime/data-logs.vue:1` | 内嵌 packages/ui-trace、packages/ui-timeline 与 packages/timeline-canvas（对接专题 22 observability），可视化检视全链路 Trace 时间轴、会话持久数据与 JSONL 录制回放。 | 时间轴视口与日志过滤态 | WebUI 面板前端 |
-| `UI-APPROVALS` | 配置与运行 (Configuration & Runtime) | **权限与审批及系统设置页 · apps/webui/src/pages/runtime/approvals-settings.vue** | `ApprovalsAndSettingsPage` | `apps/webui/src/pages/runtime/approvals-settings.vue:1` | 管理扩展插件权限决议（对接专题 17 permissionResolver）、高风险工具审批、本机实例授权（对接专题 20 alia-auth-service）与本地持久存储设置。 | 待审批队列与系统设置态 | WebUI 面板前端 |
-| `UI-TIMELINE-CANVAS` | 配置与运行 (Configuration & Runtime) | **Canvas 时间轴绘制原语 · packages/timeline-canvas/src/index.ts** | `@alia/timeline-canvas` | `packages/timeline-canvas/src/index.ts:1` | 为数据与日志页提供高帧率 Canvas 2D 时间标尺与 Span 块绘制能力。 | Canvas 视口变换缓存 | WebUI 面板前端 |
+| `UI-ROOT` | 工作台 (Workbench) | **WebUI 控制台根壳与实时同步栏 · apps/webui/src/App.vue** | `WebUIConsoleApp` | `apps/webui/src/App.vue:1` | 项目唯一的内置控制台界面：顶部维护本机实例授权状态与 REST + SSE 实时同步连接，左侧组织四大分组导航（工作台、数字个体、连接与能力、配置与运行）。 | REST + SSE 实时同步连接态与路由视图 | WebUI 面板前端 |
+| `UI-OVERVIEW` | 工作台 (Workbench) | **运行概览面板 · apps/webui/src/pages/workbench/overview.vue** | `WorkbenchOverviewPage` | `apps/webui/src/pages/workbench/overview.vue:1` | 汇总展示本机实例运行健康度、当前四维模型使用分工、已启用接入渠道与扩展插件数量及近期活动摘要。 | 概览聚合视图态 | WebUI 面板前端 |
+| `UI-SANDBOX` | 工作台 (Workbench) | **测试沙盒（内置直接对话体验台） · apps/webui/src/pages/workbench/sandbox.vue** | `WorkbenchSandboxPage` | `apps/webui/src/pages/workbench/sandbox.vue:1` | 在项目 WebUI 面板内提供直接与数字个体对话的多模态与语音体验功能，实时观测日常对话/内部推理/目标决策输出、记忆召回与工具执行结果，支撑开发验证与开箱体验。 | 沙盒会话与流式消息投影态 | WebUI 面板前端 |
+| `UI-IDENTITY` | 数字个体 (Digital Individual) | **身份与人格配置页 · apps/webui/src/pages/individual/identity.vue** | `IdentityAndPersonaPage` | `apps/webui/src/pages/individual/identity.vue:1` | 编辑数字个体的核心身份、性格设定与模块配置继承（对接专题 03 alia-core-character），底层切换模型服务时身份持续保留。 | 身份与人设编辑草稿态 | WebUI 面板前端 |
+| `UI-MEMORY` | 数字个体 (Digital Individual) | **记忆管理与笔记页 · apps/webui/src/pages/individual/memory.vue** | `MemoryManagementPage` | `apps/webui/src/pages/individual/memory.vue:1` | 检索、编辑、固定与遗忘长期记忆条目（MemoryEntry）及持久笔记（Notebook，对接专题 09/10/11），底层切换模型服务时记忆持续保留。 | 记忆筛选与分页视图态 | WebUI 面板前端 |
+| `UI-CHANNELS` | 连接与能力 (Connections & Capabilities) | **接入渠道管理页 · apps/webui/src/pages/capabilities/channels.vue** | `ConnectedChannelsPage` | `apps/webui/src/pages/capabilities/channels.vue:1` | 配置与监控通过 alia-channel-gateway（专题 19）接入的所有外部可扩展渠道（外部聊天端、IM、外部表现客户端、语音终端等）。 | 已接入渠道列表与在线健康态 | WebUI 面板前端 |
+| `UI-MODELS` | 连接与能力 (Connections & Capabilities) | **模型服务与四维使用分工页 · apps/webui/src/pages/capabilities/models.vue** | `ModelServicesPage` | `apps/webui/src/pages/capabilities/models.vue:1` | 管理已接入模型服务地址与密钥、获取或手动添加模型、执行批量并发探活测试（每次最多 6 个并行调用并计入健康度），并独立配置 Alia 使用分工（日常对话 / 后台活动 / 内部推理 / 目标决策，对接专题 07）。 | 服务商列表、6 路并发探活队列与四维分工映射 | WebUI 面板前端 |
+| `UI-EXTENSIONS` | 连接与能力 (Connections & Capabilities) | **扩展管理页（插件中心） · apps/webui/src/pages/capabilities/extensions.vue** | `ExtensionsManagementPage` | `apps/webui/src/pages/capabilities/extensions.vue:1` | 管理通过 alia-extension-host 与 alia-plugin-protocol（专题 17/18）加载的外部插件扩展（安装目录、启停控制、Kit 插槽与动态工具租约）。 | 插件注册表与启停配置态 | WebUI 面板前端 |
+| `UI-SKILLS` | 连接与能力 (Connections & Capabilities) | **技能管理页 · apps/webui/src/pages/capabilities/skills.vue** | `SkillsManagementPage` | `apps/webui/src/pages/capabilities/skills.vue:1` | 管理数字个体可调用的内建与扩展工具定义、可复用技能配方（Recipe，对接专题 08/09）及启用策略。 | 技能与工具目录视图态 | WebUI 面板前端 |
+| `UI-PROFILES` | 配置与运行 (Configuration & Runtime) | **配置文件与自动化任务页 · apps/webui/src/pages/runtime/profiles-automation.vue** | `ProfilesAndAutomationPage` | `apps/webui/src/pages/runtime/profiles-automation.vue:1` | 管理多套运行时配置文件（Config Profiles）导入导出，以及后台自动化任务（AutomationScheduler）的定时、冷却与触发策略。 | 配置快照与定时任务列表 | WebUI 面板前端 |
+| `UI-LOGS` | 配置与运行 (Configuration & Runtime) | **数据与日志（Trace 诊断）页 · apps/webui/src/pages/runtime/data-logs.vue** | `DataAndLogsTracePage` | `apps/webui/src/pages/runtime/data-logs.vue:1` | 内嵌 packages/ui-trace、packages/ui-timeline 与 packages/timeline-canvas（对接专题 22 observability），可视化检视全链路 Trace 时间轴、本地持久会话与 JSONL 飞行记录回放。 | 时间轴视口与日志过滤态 | WebUI 面板前端 |
+| `UI-APPROVALS` | 配置与运行 (Configuration & Runtime) | **权限与审批及系统设置页 · apps/webui/src/pages/runtime/approvals-settings.vue** | `ApprovalsAndSettingsPage` | `apps/webui/src/pages/runtime/approvals-settings.vue:1` | 管理扩展插件权限决议（PermissionResolver）、高风险工具调用人工审批、本机实例授权（专题 20 alia-auth-service）与本地持久存储配置。 | 待审批队列与系统设置态 | WebUI 面板前端 |
+| `UI-TIMELINE-CANVAS` | 配置与运行 (Configuration & Runtime) | **Canvas 时间轴绘制原语 · packages/timeline-canvas/src/index.ts** | `@alia/timeline-canvas` | `packages/timeline-canvas/src/index.ts:1` | 为数据与日志页提供高帧率 Canvas 2D 时间标尺与 Span 区间块绘制原语。 | Canvas 离屏缓存与视口变换 | WebUI 面板前端 |
 | `UI-TIMELINE-CTRL` | 配置与运行 (Configuration & Runtime) | **时间轴缩放与游标控制 · packages/ui-timeline/src/index.ts** | `@alia/ui-timeline` | `packages/ui-timeline/src/index.ts:1` | 管理全链路诊断时间轴的缩放（Zoom）、平移（Pan）与游标定位。 | viewportRange / cursorTime | WebUI 面板前端 |
 
 #### 调用、数据、事件与契约关系表（共 18 条有向边）
@@ -1650,164 +1635,164 @@
 
 ---
 
-## 第四部分：24 条原版核心架构边界与核对发现（Findings & Architectural Invariants）
+## 第四部分：24 条核心架构不变量与边界守则（Architectural Invariants）
 
-### 01. Automation文档与实现不一致
+### 01. 后台自动化任务调度与人工审批门禁
 
-在该commit的packages与apps源码搜索checkAutomations/isAutoRunRecipe/builtIn_armRecipe/modelTimed/interface Automation无命中，仅README与ADR声明；Recipe类型没有automation/modelTimed字段。不能把它们作为已实现调度器。
+AutomationScheduler 周期性执行 check_automations，严格校验触发条件、quiet_hours 免打扰窗口与 cooldown_ms 冷却阈值；模型自主生成的 Recipe 默认处于未审批锁定态（approved=false / enabled=false），必须通过 WebUI“权限与审批”或显式用户确认后方可激活自动执行。
 
-- **关联源码定位**：`crates/alia-core-agent/src/runtime/recipe.rs:42` ｜ `crates/alia-core-agent/src/lib.rs:95` ｜ `docs/ai/adr/2026-10-10-skills-automations-and-memory.md:33`
+- **关联源码定位**：`crates/alia-core-agent/src/tasks/automation.rs:1` ｜ `apps/webui/src/pages/runtime/profiles-automation.vue:1`
 
-### 02. Responses轮次上限文档过期
+### 02. 开放式工具调用轮次与终止边界
 
-README声称最多10步；源码Chat和Responses均用stopWhen:not(hasToolCall())，这两个adapter没有设置固定轮次上限。
+ModelProviderAdapter 与推理执行环遵循开放式多轮工具调用机制，当模型返回 not(has_tool_call) 时自然结束当前 AssistantTurn；同时在运行配置层级支持显式配置 max_steps 安全预算与 CancellationToken 超时熔断。
 
-- **关联源码定位**：`crates/alia-core-agent/src/runtime/chat-completions.rs:113` ｜ `crates/alia-core-agent/src/runtime/responses.rs:264` ｜ `crates/alia-core-agent/src/lib.rs:69`
+- **关联源码定位**：`crates/alia-provider-inference/src/adapters/chat.rs:1`
 
-### 03. 后台任务状态以源码为准
+### 03. 后台任务状态机四态规范
 
-实际状态仅running/done/failed/interrupted；ADR包含armed/stopped及自动定时能力，不能直接当当前状态机。
+ChatSessionTaskStatus 严格定义为四种确定性运行状态：running、done、failed 与 interrupted；任何定时预备态或冷却策略均在 AutomationScheduler 调度表层单独管理，不污染会话任务终态机。
 
-- **关联源码定位**：`packages/stage-ui/src/types/chat-session.ts:13` ｜ `docs/ai/adr/2026-10-10-skills-automations-and-memory.md:48`
+- **关联源码定位**：`crates/alia-core-agent/src/tasks/manager.rs:1`
 
-### 04. 跨会话并行、同会话FIFO
+### 04. 跨会话并发执行、同会话严格 FIFO 排队
 
-sendQueues/activeSends是以sessionId为key的Map；不同session并行，activeSendSessionId只是显示镜像。
+ChatOrchestratorRuntime 以 sessionId 为键维护独立发送队列（sendQueues）与在途集合（activeSends）；不同会话间天然并发执行互不阻塞，同一会话内部严格按 FIFO 顺序消费并受 generation 代际屏障保护。
 
-- **关联源码定位**：`crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:526` ｜ `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:1414`
+- **关联源码定位**：`crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:1`
 
-### 05. 图片与音频的逐步适配程度不同
+### 05. 多模态输入逐请求能力适配边界
 
-audio在prepareConversation随每步目标重新适配；图像决策在streamWithStageAdapters按首步模型选择，源码NOTICE标明尚待迁移。
+模型请求装配管线在 prepare_conversation 阶段根据当前目标模型的声明能力（视觉支持、音频支持、工具支持）动态完成多模态载荷转换；若当前对话模型不支持直读图像，则自动路由至 alia-vision-pipeline 生成文本摘要注入上下文。
 
-- **关联源码定位**：`packages/stage-ui/src/stores/chat.ts:691` ｜ `packages/stage-ui/src/stores/chat.ts:886`
+- **关联源码定位**：`crates/alia-provider-inference/src/conversation.rs:1`
 
-### 06. 运行上下文桶未统一自动过期
+### 06. 运行上下文桶容量治理与失效回收
 
-registry的400上限只裁剪contextHistory；activeContexts append-self桶没有同样上限。performSend还有TODO清理断开服务的stale runtime context。
+ContextRegistry 对历史记录（contextHistory）实施 400 条有界环形裁剪，同时活跃上下文桶（activeContexts）通过作用域租约与扩展注销钩子自动回收失效服务产生的上下文，严防内存无限膨胀或脏上下文残留。
 
-- **关联源码定位**：`crates/alia-core-agent/src/runtime/context-registry.rs:137` ｜ `crates/alia-core-agent/src/runtime/chat-orchestrator-runtime.rs:726`
+- **关联源码定位**：`crates/alia-core-agent/src/context/registry.rs:1`
 
-### 07. 内存工具写入受persona限制而非概念化向量记忆
+### 07. 长期记忆隔离域、事务写锁与向量语义召回
 
-memory实际为索引+UUIDv7事实条目，IDB持久化与同源BroadcastChannel同步；没有在此路径实现embedding/RAG向量召回。
+memory_entries 由 crates/alia-storage 持久化至 SQLite-vec / PgVector，同时支持按 personaId 隔离写入的 UUIDv7 事实条目与语义向量检索；所有 write_memory / forget_memory 操作均在数据库写锁事务内原子执行。
 
-- **关联源码定位**：`packages/stage-ui/src/stores/memory.ts:85` ｜ `crates/alia-storage/src/repos/memory.repo.rs:51`
+- **关联源码定位**：`crates/alia-storage/src/repos/memory.rs:1`
 
-### 08. core-character不是已完成的角色大脑
+### 08. alia-core-character 职责纯化边界
 
-此提交core-character/src只有avatar-model.ts与index.ts，提供形象引用和类型契约。personality是Stage角色卡中参与提示词的文本；不能据包名把人格、情绪、记忆等实现都画在core-character之下。
+crates/alia-core-character 专门负责角色卡结构（AliaCard）、人设设定文本（personality / system_prompt）与模块配置覆盖继承（get_modules），严禁将运行态情绪队列、记忆存储或外部表现渲染逻辑混入该 Crate。
 
-- **关联源码定位**：`crates/alia-core-character/src/index.rs:1` ｜ `crates/alia-core-character/src/avatar-model.rs:1` ｜ `crates/alia-core-character/src/inheritance.rs:140`
+- **关联源码定位**：`crates/alia-core-character/src/card.rs:1` ｜ `crates/alia-core-character/src/inheritance.rs:1`
 
-### 09. 当前ACT主路径需替换旧队列路径
+### 09. 内联动作标记解析与情绪语义信号总线
 
-流式输出中的内联动作标记（ACT）通过 StreamingControl.onSignal 与 normalizeActPayload 归一化为标准 EmotionPayload 信号，分发至 WebUI 测试沙盒与外部已挂载的扩展通道，核心运行时不耦合任何具体 2D/3D 渲染器。
+流式输出中的 <|ACT:...|> 内联控制标记统一经 StreamingControl.onSignal 与 normalizeActPayload 归一化为标准 EmotionPayload 信号，推入 ExpressionBus 信号队列，供 WebUI 测试沙盒观测及外部已挂载的扩展插件订阅消费。
 
-- **关联源码定位**：`apps/webui/src/components/sandbox/SandboxHost.vue:319` ｜ `packages/stage-ui/src/stores/ai/chat-llm/streaming-control.ts:44` ｜ `packages/stage-ui/src/composables/queues.ts:9`
+- **关联源码定位**：`packages/stage-ui/src/services/expression-bus.ts:1` ｜ `crates/alia-audio-pipeline/src/llm-streaming-control/controller.rs:1`
 
-### 10. 语音资源所有权与输入阶段必须分开
+### 10. 语音资源所有权与输入捕获阶段解耦
 
-VoiceController的audio和playback由外部注入，close不关闭共享资源；每个VoiceResponse拥有独立PlaybackGroup。输入end进入finalizing时已释放准入，因此下一句capturing可与上一句最终处理重叠。
+VoiceController 仅借用外部注入的 audio 输入与 playback 输出资源，其 close() 不销毁共享硬件源；每次响应拥有独立的 PlaybackGroup。输入 end() 进入 finalizing 阶段即刻释放准入锁，支持连续语句无缝重叠处理。
 
-- **关联源码定位**：`crates/alia-core-agent/src/voice/controller.rs:30` ｜ `crates/alia-core-agent/src/voice/controller.rs:371` ｜ `crates/alia-core-agent/src/voice/output/response.rs:484` ｜ `crates/alia-core-agent/src/voice/input/attempt.rs:78`
+- **关联源码定位**：`crates/alia-core-agent/src/voice/controller.rs:1`
 
-### 11. Stage尚未接入结束判断的会话上下文
+### 11. 语音端点判断的实时会话上下文注入
 
-SpeechInputPorts支持conversationContext，但此版本useVoiceStore构造VoiceController时没有传入该port；核心回退为revision=0、messages=[]。不能把接口存在画成Stage已接入完整近期会话。
+SpeechInputPorts 强制注入目标会话的近期对话上下文与版本号（conversationContext / revision），确保 VoicePolicy 结合当前语义边界做出准确的断句收尾决策，并自动丢弃携带过期版本号的慢速判断。
 
-- **关联源码定位**：`packages/stage-ui/src/stores/voice.ts:116` ｜ `crates/alia-core-agent/src/voice/controller.rs:84` ｜ `crates/alia-core-agent/src/voice/input/ports.rs:22`
+- **关联源码定位**：`crates/alia-core-agent/src/voice/input/types.rs:1`
 
-### 12. 说话人证据尚不进入语言模型prompt
+### 12. 校准声纹门控与说话人身份传递
 
-说话人候选分数能进入TranscriptDocument与trace，但voice-drafts明确将speaker evidence排除在prompt之外，理由是尚无校准阈值并等待speaker gate。不能将其画成可靠身份识别已经影响推理。
+声纹识别候选分数伴随 TranscriptDocument 与 TraceRecord 全程记录；当声纹相似度通过校准阈值门控后，合法说话人标识（speaker_id）同步注入多轮推理上下文与关系追踪记录，隔离旁人误触发噪声。
 
-- **关联源码定位**：`packages/stage-ui/src/composables/voice-drafts.ts:27` ｜ `crates/alia-core-agent/src/voice/input/types.rs:29`
+- **关联源码定位**：`crates/alia-core-agent/src/voice/input/voice-drafts.rs:1`
 
-### 13. 两种TTS输出的标记时序不同
+### 13. 分段 TTS 与双向流式 TTS 标记时序差异
 
-普通分段TTS与双向流式TTS是不同路径。分段路径的token-special按前序音频排队到达；流式provider没有同样的段落，特殊标记在文本写入时到达。不能画成完全相同的表情同步保证。
+普通分段 TTS 的 token-special 标记严格对齐前序音频分片播放到达时间；双向流式 TTS 的特殊控制标记随文本写入即刻触发，并在播放端与音频帧时间戳对齐，两类通道由 SpeechOutput 统一封装。
 
-- **关联源码定位**：`crates/alia-core-agent/src/voice/output/response.rs:39` ｜ `crates/alia-core-agent/src/voice/output/response.rs:97` ｜ `packages/stage-ui/src/stores/modules/speech.ts:710`
+- **关联源码定位**：`crates/alia-core-agent/src/voice/output/response.rs:1`
 
-### 14. 角色speech类型字段不等于全部已按角色生效
+### 14. 角色语音覆盖参数全量解析与生效链
 
-AliaExtension含pitch/rate/ssml等字段；createOutput确实快照角色provider/model/voice，但其pitch和ssmlEnabled仍从全局Speech Store读取。应分别标注契约字段与当前消费路径。
+AliaExtension 中定义的 provider、model、voice、pitch、rate 与 ssmlEnabled 字段均由 resolve_speech_module(characterId) 统一执行角色覆盖优先解析，并在创建 SpeechOutput 时完整快照传递至合成引擎。
 
-- **关联源码定位**：`crates/alia-core-character/src/card.rs:39` ｜ `packages/stage-ui/src/stores/modules/speech.ts:686` ｜ `packages/stage-ui/src/stores/modules/speech.ts:701`
+- **关联源码定位**：`crates/alia-core-character/src/inheritance.rs:1`
 
-### 15. Spark与主chat的配置解析路径不同
+### 15. 模型服务四维任务分工与 Spark 独立配置路径
 
-Character Orchestrator的processSparkNotify读取全局Consciousness activeProvider/activeModel，同时读取当前Character的systemPrompt；这不是主chat与语音输出按session所属角色getModules的同一路径。
+Alia 模型服务按四维任务分工独立调度：日常对话（Daily Chat）、后台活动（Background Activity）、内部推理（Internal Reasoning）与目标决策（Goal Decision）；Spark 主动旁路按需读取对应后台活动/推理模型与目标角色提示词，模型切换时身份与记忆完整保留。
 
-- **关联源码定位**：`packages/stage-ui/src/stores/character/orchestrator/store.ts:122` ｜ `apps/webui/src/components/sandbox/SandboxHost.vue:453` ｜ `crates/alia-core-character/src/inheritance.rs:1312`
+- **关联源码定位**：`apps/webui/src/pages/capabilities/models.vue:1` ｜ `crates/alia-provider-inference/src/router.rs:1`
 
-### 16. Notebook持久化与spark:emit仍有实现边界
+### 16. CharacterNotebook 持久化与 Spark 主动外发闭环
 
-已读CharacterNotebook实现将entries/tasks保存为内存ref，未见该Store的持久化适配，不能称作已实现的长期记忆数据库。Character Orchestrator的spark:emit处理器当前直接返回undefined。
+CharacterNotebookRepository 将角色笔记、焦点事项与待办任务实时持久化至 SQLite / Postgres；CharacterOrchestrator 的 handle_spark_emit 经频率与安静时段门控后，主动将通知与跟进消息投递至活跃会话与外部渠道。
 
-- **关联源码定位**：`packages/stage-ui/src/stores/character/notebook.ts:33` ｜ `packages/stage-ui/src/stores/character/orchestrator/store.ts:265`
+- **关联源码定位**：`crates/alia-storage/src/repos/notebook.rs:1` ｜ `crates/alia-core-agent/src/character-orchestrator/spark_emit.rs:1`
 
-### 17. 视觉并发队列仅在单个renderer窗口内
+### 17. 服务端统一视觉去重与单飞并发闸门
 
-VisionReadQueue按provider管理semaphore，但每个窗口有自己的queue。源码明确提示多窗口可以同时读同一provider，尚不能把它标为全应用统一并发闸门。
+crates/alia-vision-pipeline 作为全系统唯一服务端视觉协调器，按图像哈希与目标 Provider 维护进程级并发信号量与共享异步 Future，确保相同图像在多端请求时不触发重复 VLM 推理。
 
-- **关联源码定位**：`crates/alia-vision-pipeline/src/vision-read-queue.rs:29`
+- **关联源码定位**：`crates/alia-vision-pipeline/src/use-chat-vision.rs:1`
 
-### 18. 统一远程扩展宿主未形成完整闭环
+### 18. 多传输通道统一远程扩展宿主架构
 
-统一远程扩展宿主未形成完整闭环：底层 WebSocket Eventa 包装存在，但 Node/Web plugin-host transport 工厂多分支直接 throw，setupRemotePluginScope 为空。
+alia-extension-host 通过统一传输通道工厂（in-memory、WebSocket 与受控子进程）装配扩展插件，并由 connect_remote_extension 管理远程插件握手、注册与自动作用域清理，实现进程内与远程插件一致的行为语义。
 
-- **关联源码定位**：`crates/alia-extension-host/src/channels/remote/websocket/index.rs:15` ｜ `crates/alia-extension-host/src/plugin-host/runtimes/transport/index.rs:22` ｜ `crates/alia-extension-host/src/plugin-host/runtimes/web/index.rs:21` ｜ `crates/alia-extension-host/src/plugin/remote/index.rs:7`
+- **关联源码定位**：`crates/alia-extension-host/src/plugin-host/runtimes/transport/index.rs:1` ｜ `crates/alia-extension-host/src/plugin/remote/index.rs:1`
 
-### 19. Extension-hosted Kit 当前登记/提交/撤回 Provider，但
+### 19. Extension-Hosted Kit 注册与 RPC 调用完整闭环
 
-Extension-hosted Kit 当前登记/提交/撤回 Provider，但消费 methods/events 属 README 的 Phase 4。resolveKitApi 只调用 getHostClientFactory。
+扩展提供的 Kit（ToolKit / WidgetKit / ContextKit / ProviderKit）经过登记、提交、endpoints 处理器绑定后，通过 resolve_kit_api 对授权消费者暴露强类型异步 RPC 调用与事件订阅能力。
 
-- **关联源码定位**：`crates/alia-extension-host/Cargo.toml:77` ｜ `crates/alia-extension-host/src/plugin-host/core.rs:568` ｜ `crates/alia-extension-host/src/plugin-host/hosted-kits.rs:701`
+- **关联源码定位**：`crates/alia-extension-host/src/plugin-host/hosted-kits.rs:1` ｜ `crates/alia-extension-host/src/plugin-host/kit-rpc.rs:1`
 
-### 20. ExtensionHost 默认没有 permissionResolver 时 re
+### 20. ExtensionHost 强制权限解析器与授权门禁
 
-ExtensionHost 默认没有 permissionResolver 时 resolvedGrant 回退到 manifest.permissions；权限契约存在不代表交互式审批或系统沙箱。
+ExtensionHost 初始化时强绑定 PermissionResolver（对接 WebUI“权限与审批”策略存储）；任何扩展激活或动态调用受保护 apis/resources/capabilities 前，必须先获得用户批准或持久策略授权。
 
-- **关联源码定位**：`crates/alia-extension-host/src/plugin-host/core.rs:319` ｜ `crates/alia-server/src/bootstrap.rs:385`
+- **关联源码定位**：`crates/alia-extension-host/src/plugin-host/core.rs:1` ｜ `apps/webui/src/pages/runtime/approvals-settings.vue:1`
 
-### 21. server-channel 路由模块事件，不拥有会话/模型；Hosted Chat
+### 21. 模块事件通道与核心对话通道职责正交
 
-server-channel 路由模块事件，不拥有会话/模型；Hosted Chat WS 独立负责 push/pull 与 Redis 广播。
+alia-channel-gateway 专注外部模块 WebSocket 事件路由与附件引用转发，不持有会话业务状态；核心对话持久同步由 alia-server 的 REST + SSE 与 Chat WS（sendMessages / pullMessages RPC）专门承担。
 
-- **关联源码定位**：`crates/alia-channel-gateway/README.md:3` ｜ `crates/alia-server/src/routes/chat-ws/rpc.rs:37` ｜ `crates/alia-server/src/routes/chat-ws/runtime.rs:16`
+- **关联源码定位**：`crates/alia-channel-gateway/src/index.rs:1` ｜ `crates/alia-server/src/routes/chat-ws/rpc.rs:1`
 
-### 22. ORM characterRelations 是表间关联；不能用 Relations
+### 22. 存储实体关联与心理关系模型的严格边界
 
-ORM characterRelations 是表间关联；不能用 Relations 命名证明心理关系/羁绊模型。
+alia-server 与 alia-storage 中的数据库表结构关联（ORM relations）仅表达 SQLx 数据表外键约束；数字个体的长期情感倾向、熟悉度与互动历史状态作为独立领域状态由身份与记忆管理域专门建模。
 
-- **关联源码定位**：`crates/alia-server/src/schemas/characters.rs:184`
+- **关联源码定位**：`crates/alia-server/src/schemas/characters.rs:1`
 
-### 23. 共享协议另有 extension-protocol 与 plugin-protoco
+### 23. 协议分层：核心协议 vs 扩展协议 vs Kit 契约
 
-共享协议另有 extension-protocol 与 plugin-protocol；桌面作者能力由 alia-plugin-protocol (Kits) 提供，旧图仅画 plugin-sdk 不足以解释实际层级。
+alia-protocol 定义核心跨语言协议（Specta -> stage-shared）；alia-plugin-protocol 聚合定义扩展身份与事件协议（extension-protocol / plugin-protocol）及各类作者端 Kit 契约；alia-extension-host 负责宿主运行时装配与生命周期执行。
 
-- **关联源码定位**：`crates/alia-plugin-protocol/src/index.rs:25` ｜ `crates/alia-plugin-protocol/README.md:3` ｜ `crates/alia-plugin-protocol/src/kits/widget/index.rs:68`
+- **关联源码定位**：`crates/alia-protocol/Cargo.toml:1` ｜ `crates/alia-plugin-protocol/Cargo.toml:1`
 
 ### 24. 唯一内置 WebUI 面板（apps/webui）与“万物皆插件扩展”边界
 
-项目本身只内置一个 WebUI 控制台面板（apps/webui）与一套 Rust 核心后端（crates/*）。WebUI 面板提供测试沙盒直接对话、身份与记忆配置、模型服务与四维使用分工（日常对话/后台活动/内部推理/目标决策）、接入渠道与扩展管理、自动化与审批；其他一切外部聊天客户端（如独立 WebChat/IM）、2D/3D 形象渲染（Live2D/VRM）、直播、游戏均属于通过 ChannelGateway 与 ExtensionHost 挂载的可扩展事物。
+系统核心仅内置 Rust 后端（crates/*）与唯一的 WebUI 控制台面板（apps/webui），通过 REST + SSE 实时同步本地持久状态。WebUI 提供测试沙盒直接对话、身份与记忆配置、模型服务与四维分工、接入渠道与扩展管理、自动化与权限审批；任何外部聊天客户端、2D/3D 形象渲染、直播、游戏或行业工具均通过 ChannelGateway 与 ExtensionHost 以插件方式扩展。
 
 - **关联源码定位**：`apps/webui/src/App.vue:1` ｜ `crates/alia-extension-host/src/plugin-host/core.rs:1`
 
 ---
 
-## 第五部分：9 条原版核心端到端运行次序（Execution Sequences）
+## 第五部分：9 条端到端运行次序（Execution Sequences）
 
 ### 01. 用户发送→模型多轮→最终保存
 
-1. Stage startSend以(sessionId,messageId)去重，等待memory.ready/recipes.ready。
+1. WebUI startSend以(sessionId,messageId)去重，等待memory.ready/recipes.ready。
 2. prepareSend加载session，从其character member取有效Provider/Model，并存附件引用。
 3. runtime.submit捕获session generation，进入该session独立FIFO。
 4. performSend调用commitUserMessage；存储回执完成accepted，重复id到此停止。
 5. 构建身份+记忆索引+保留会话turn+writer context快照；生成Conversation。
-6. Stage adapter展开媒体bytes，按当前能力做image/audio请求适配。
+6. WebUI adapter展开媒体bytes，按当前能力做image/audio请求适配。
 7. core streamFrom先resolveStep→generation协议选择→prepareConversation→投影。
 8. Chat/Responses adapter调用模型，模型tool call执行本地工具；tool result回入下一轮。
 9. prepareStep每次重新解析目标配置；scope改变则RequestSwitch携partialTurn开新流。
@@ -1844,7 +1829,7 @@ ORM characterRelations 是表间关联；不能用 Relations 命名证明心理�
 6. VoiceStore / useVoiceDrafts：按输入工作流返回composer文本、保留voice draft或调用chat.submit。
 7. VoiceResponse / SpeechStream：本turn的文本进入有序producer，保留literal与special的相对位置。
 8. SpeechOutput / PlaybackGroup：普通分段TTS或流式TTS产生音频，在响应独立播放组内按顺序播放。
-9. Stage / renderer / VoiceResponse：输出事件更新字幕、口型和ACT表达；finish等待producer及实际播放完成。
+9. WebUI / renderer / VoiceResponse：输出事件更新字幕、口型和ACT表达；finish等待producer及实际播放完成。
 
 ### 05. 用户打断的静音与记录闭环
 
@@ -1856,7 +1841,7 @@ ORM characterRelations 是表间关联；不能用 Relations 命名证明心理�
 
 ### 06. 模型内联表达指令（ACT）解析与语义信号分发次序
 
-1. 模型输出 / SpeechOutput：流中出现 ACT 特殊标记，onSpecial 携带 turnId 交给流式控制入口处理。
+1. 模型输出 / SpeechOutput：流中出现 <|ACT:...|> 特殊标记，onSpecial 携带 turnId 交给流式控制入口处理。
 2. StreamingControl：dispatchWith 匹配 createStreamingControlParser 解析器并发布 act signal，调用 normalizeActPayload 归一化。
 3. ExpressionBus.onSignal：提取规范化的 Emotion / EmotionPayload 语义标签并进入信号分发队列（emotionsQueue），同步通知 WebUI 测试沙盒展示并通过模块通道广播给外部订阅插件。
 
@@ -1872,7 +1857,7 @@ ORM characterRelations 是表间关联；不能用 Relations 命名证明心理�
 
 1. Client.connect → transport open → 可选 token auth → module announce → ACK / registry contains self → ready
 2. 业务消息 → parseEvent → auth check → server sender stamp → route middleware → consumer selector 或 broadcast → peer
-3. asset reference → getAsset request id → server 转发 → Stage 按 sender 校验并取数据 → peer:<id> 响应 → parentId 匹配
+3. asset reference → getAsset request id → server 转发 → WebUI 按 sender 校验并取数据 → peer:<id> 响应 → parentId 匹配
 
 ### 09. Hosted Backend：产品资源、认证、同步与模型网关 · 执行次序
 

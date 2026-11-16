@@ -2,13 +2,13 @@
 <style>text{font-family:'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#17334d}</style>
 <rect width="1600" height="1376" fill="#f8fafc"/>
 <rect width="1600" height="120" fill="#153655"/>
-<text x="40" y="52" style="fill:white" font-size="28" font-weight="700">Principia · 23 核心专题全景展开总树 (原版核心保留 + 唯一内置 WebUI 面板)</text>
-<text x="40" y="88" style="fill:#cbd5e1" font-size="16">共 23 个核心专题 · 479 个符号节点 · 525 条有向关系 · 22 个工作空间</text>
+<text x="40" y="52" style="fill:white" font-size="28" font-weight="700">Principia · 23 专题全景展开总树 (Rust 核心运行时 + 唯一内置 WebUI 面板)</text>
+<text x="40" y="88" style="fill:#cbd5e1" font-size="16">共 23 个专题 · 479 个符号节点 · 525 条有向关系 · 22 个工作空间</text>
 <rect x="40" y="150" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="58" y="175" font-size="14" font-weight="700" fill="#1e3a56">01 · 全局组织与职责边界（原版核心能力保留 + 唯一内置 WebUI 面板 + 插件扩展底座）</text>
+<text x="58" y="175" font-size="14" font-weight="700" fill="#1e3a56">01 · 全局组织与职责边界（Rust 核心运行时 + 唯一内置 WebUI 面板 + 插件扩展底座）</text>
 <text x="1180" y="175" font-size="13" fill="#475569">20 节点 / 23 关系 · 01-organization</text>
 <rect x="40" y="200" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
-<text x="58" y="225" font-size="14" font-weight="700" fill="#1e3a56">02 · 应用宿主与启动装配（alia-server 本机宿主 + apps/webui 面板初始化）</text>
+<text x="58" y="225" font-size="14" font-weight="700" fill="#1e3a56">02 · 应用宿主与启动装配（alia-server 本机宿主 + apps/webui 控制台初始化）</text>
 <text x="1180" y="225" font-size="13" fill="#475569">19 节点 / 19 关系 · 02-platform-hosts</text>
 <rect x="40" y="250" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
 <text x="58" y="275" font-size="14" font-weight="700" fill="#1e3a56">03 · 角色定义、设定文本与模块配置继承解析</text>

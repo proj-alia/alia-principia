@@ -2,7 +2,7 @@ digraph G {
 graph [rankdir=LR, bgcolor="transparent", fontname="Noto Sans CJK SC", fontsize=16, nodesep=0.32, ranksep=0.62, pad=0.25, splines=polyline, newrank=true, compound=true];
 node [shape=box, fontname="Noto Sans CJK SC", fontsize=13, margin="0.11,0.08", penwidth=1.1];
 edge [fontname="Noto Sans CJK SC", fontsize=10, arrowsize=0.65, penwidth=1.15, color="#5c7897"];
-root [label="02 应用宿主与启动装配（alia-server 本机宿主 + apps/webui 面板初始化）", style="rounded,filled", fillcolor="#153655", fontcolor="white", fontsize=17];
+root [label="02 应用宿主与启动装配（alia-server 本机宿主 + apps/webui 控制台初始化）", style="rounded,filled", fillcolor="#153655", fontcolor="white", fontsize=17];
 g0 [label="WebUI 面板宿主", style="rounded,filled", fillcolor="#edf3f9", color="#b1c1d1", fontsize=14];
 root -> g0 [label="职责分组", color="#9babbc"];
 "H01" [id="node-H01", label=<<TABLE BORDER="0" CELLBORDER="0" CELLSPACING="0" CELLPADDING="3"><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#64748b">H01 · WebUI 面板前端</FONT></TD></TR><TR><TD ALIGN="LEFT"><B>WebUI 面板根入口</B></TD></TR><TR><TD ALIGN="LEFT"><FONT FACE="DejaVu Sans Mono" POINT-SIZE="11" COLOR="#265782">App.vue</FONT></TD></TR><TR><TD ALIGN="LEFT"><FONT POINT-SIZE="10" COLOR="#586c80">src/App.vue:1</FONT></TD></TR></TABLE>>, fillcolor="#ffffff", color="#afbed0", style="rounded,filled", URL="./apps/webui/src/App.vue#L1", target="_blank", tooltip="装配认证、角色、会话、模型、音频和服务。不是只包含界面模板。"];
