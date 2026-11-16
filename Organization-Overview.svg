@@ -1,0 +1,71 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1840" height="1120" viewBox="0 0 1840 1120" role="img" aria-label="Principia 核心工作空间组织目录">
+<style>text{font-family:'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#17334d}a:hover text{fill:#1b75be}</style>
+<rect width="1840" height="1120" fill="#edf2f7"/>
+<rect width="1840" height="175" fill="#153655"/>
+<text x="42" y="60" style="fill:white" font-size="34" font-weight="700">Principia · 通用 AI 数字个体核心架构图纸（原版核心保留 + 可扩展剥离）</text>
+<text x="44" y="100" style="fill:#d2e1ef" font-size="20">Rust Cargo Workspace (14 Crates) + 唯一内置 WebUI 面板与基础包 (8 Packages) · 23 个核心专题 · 479 个符号节点</text>
+<text x="44" y="138" style="fill:#b5cee2" font-size="15">核心铁律：保留原版全部核心能力 | 移除 Live2D/VRM/桌面壳/第三方Bot 等可扩展功能 | 仅保留唯一内置 apps/webui 面板进行配置、对话沙盒验证与插件扩展</text>
+<rect x="42" y="215" width="568" height="112" rx="10" fill="#ffffff" stroke="#d7e1ec"/>
+<rect x="42" y="215" width="6" height="112" rx="3" fill="#2d6595"/>
+<text x="64" y="249" font-size="20" font-weight="700">唯一内置前端宿主 (Vue 3 / TS)</text>
+<text x="64" y="285" font-size="16" font-weight="600" fill="#204e76">apps/webui</text>
+<text x="64" y="303" font-size="12" fill="#66798c">@alia/webui</text>
+<rect x="638" y="215" width="568" height="332" rx="10" fill="#ffffff" stroke="#d7e1ec"/>
+<rect x="638" y="215" width="6" height="332" rx="3" fill="#0f766e"/>
+<text x="660" y="249" font-size="20" font-weight="700">核心运行时与角色/推理契约 (Rust Crates)</text>
+<text x="660" y="285" font-size="16" font-weight="600" fill="#204e76">crates/alia-server</text>
+<text x="660" y="303" font-size="12" fill="#66798c">alia-server</text>
+<text x="660" y="329" font-size="16" font-weight="600" fill="#204e76">crates/alia-protocol</text>
+<text x="660" y="347" font-size="12" fill="#66798c">alia-protocol</text>
+<text x="660" y="373" font-size="16" font-weight="600" fill="#204e76">crates/alia-core-character</text>
+<text x="660" y="391" font-size="12" fill="#66798c">alia-core-character</text>
+<text x="660" y="417" font-size="16" font-weight="600" fill="#204e76">crates/alia-core-agent</text>
+<text x="660" y="435" font-size="12" fill="#66798c">alia-core-agent</text>
+<text x="660" y="461" font-size="16" font-weight="600" fill="#204e76">crates/alia-provider-inference</text>
+<text x="660" y="479" font-size="12" fill="#66798c">alia-provider-inference</text>
+<text x="660" y="505" font-size="16" font-weight="600" fill="#204e76">crates/alia-auth-service</text>
+<text x="660" y="523" font-size="12" fill="#66798c">alia-auth-service</text>
+<rect x="1234" y="215" width="568" height="200" rx="10" fill="#ffffff" stroke="#d7e1ec"/>
+<rect x="1234" y="215" width="6" height="200" rx="3" fill="#0f766e"/>
+<text x="1256" y="249" font-size="20" font-weight="700">持久存储与多模态感知管线 (Rust Crates)</text>
+<text x="1256" y="285" font-size="16" font-weight="600" fill="#204e76">crates/alia-storage</text>
+<text x="1256" y="303" font-size="12" fill="#66798c">alia-storage</text>
+<text x="1256" y="329" font-size="16" font-weight="600" fill="#204e76">crates/alia-audio-pipeline</text>
+<text x="1256" y="347" font-size="12" fill="#66798c">alia-audio-pipeline</text>
+<text x="1256" y="373" font-size="16" font-weight="600" fill="#204e76">crates/alia-vision-pipeline</text>
+<text x="1256" y="391" font-size="12" fill="#66798c">alia-vision-pipeline</text>
+<rect x="42" y="353" width="568" height="288" rx="10" fill="#ffffff" stroke="#d7e1ec"/>
+<rect x="42" y="353" width="6" height="288" rx="3" fill="#0f766e"/>
+<text x="64" y="387" font-size="20" font-weight="700">插件扩展宿主、通道网关与底座 (Rust Crates)</text>
+<text x="64" y="423" font-size="16" font-weight="600" fill="#204e76">crates/alia-plugin-protocol</text>
+<text x="64" y="441" font-size="12" fill="#66798c">alia-plugin-protocol</text>
+<text x="64" y="467" font-size="16" font-weight="600" fill="#204e76">crates/alia-extension-host</text>
+<text x="64" y="485" font-size="12" fill="#66798c">alia-extension-host</text>
+<text x="64" y="511" font-size="16" font-weight="600" fill="#204e76">crates/alia-channel-gateway</text>
+<text x="64" y="529" font-size="12" fill="#66798c">alia-channel-gateway</text>
+<text x="64" y="555" font-size="16" font-weight="600" fill="#204e76">crates/alia-stream-kit</text>
+<text x="64" y="573" font-size="12" fill="#66798c">alia-stream-kit</text>
+<text x="64" y="599" font-size="16" font-weight="600" fill="#204e76">crates/alia-trace-kit</text>
+<text x="64" y="617" font-size="12" fill="#66798c">alia-trace-kit</text>
+<rect x="638" y="573" width="568" height="244" rx="10" fill="#ffffff" stroke="#d7e1ec"/>
+<rect x="638" y="573" width="6" height="244" rx="3" fill="#2d6595"/>
+<text x="660" y="607" font-size="20" font-weight="700">前端状态编排、音频与基础原语 (TS Packages)</text>
+<text x="660" y="643" font-size="16" font-weight="600" fill="#204e76">packages/stage-shared</text>
+<text x="660" y="661" font-size="12" fill="#66798c">@alia/stage-shared</text>
+<text x="660" y="687" font-size="16" font-weight="600" fill="#204e76">packages/stage-ui</text>
+<text x="660" y="705" font-size="12" fill="#66798c">@alia/stage-ui</text>
+<text x="660" y="731" font-size="16" font-weight="600" fill="#204e76">packages/audio-web</text>
+<text x="660" y="749" font-size="12" fill="#66798c">@alia/audio-web</text>
+<text x="660" y="775" font-size="16" font-weight="600" fill="#204e76">packages/ui</text>
+<text x="660" y="793" font-size="12" fill="#66798c">@alia/ui</text>
+<rect x="1234" y="441" width="568" height="200" rx="10" fill="#ffffff" stroke="#d7e1ec"/>
+<rect x="1234" y="441" width="6" height="200" rx="3" fill="#2d6595"/>
+<text x="1256" y="475" font-size="20" font-weight="700">前端全链路 Trace 时间轴与诊断 (TS Packages)</text>
+<text x="1256" y="511" font-size="16" font-weight="600" fill="#204e76">packages/timeline-canvas</text>
+<text x="1256" y="529" font-size="12" fill="#66798c">@alia/timeline-canvas</text>
+<text x="1256" y="555" font-size="16" font-weight="600" fill="#204e76">packages/ui-timeline</text>
+<text x="1256" y="573" font-size="12" fill="#66798c">@alia/ui-timeline</text>
+<text x="1256" y="599" font-size="16" font-weight="600" fill="#204e76">packages/ui-trace</text>
+<text x="1256" y="617" font-size="12" fill="#66798c">@alia/ui-trace</text>
+<text x="44" y="1096" font-size="15" fill="#475569">阅读路径：工作空间 (Rust Crates / WebUI Packages) → 23 个核心专题职责图 → 调用与数据流图 → 节点状态归属与导出符号</text>
+</svg>

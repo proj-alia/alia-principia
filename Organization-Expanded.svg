@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1376" viewBox="0 0 1600 1376" role="img" aria-label="Principia 23 专题全对象级展开总索引">
+<style>text{font-family:'Noto Sans CJK SC','Microsoft YaHei',sans-serif;fill:#17334d}</style>
+<rect width="1600" height="1376" fill="#f8fafc"/>
+<rect width="1600" height="120" fill="#153655"/>
+<text x="40" y="52" style="fill:white" font-size="28" font-weight="700">Principia · 23 核心专题全景展开总树 (原版核心保留 + 唯一内置 WebUI 面板)</text>
+<text x="40" y="88" style="fill:#cbd5e1" font-size="16">共 23 个核心专题 · 479 个符号节点 · 525 条有向关系 · 22 个工作空间</text>
+<rect x="40" y="150" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="175" font-size="14" font-weight="700" fill="#1e3a56">01 · 全局组织与职责边界（原版核心能力保留 + 唯一内置 WebUI 面板 + 插件扩展底座）</text>
+<text x="1180" y="175" font-size="13" fill="#475569">20 节点 / 23 关系 · 01-organization</text>
+<rect x="40" y="200" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="225" font-size="14" font-weight="700" fill="#1e3a56">02 · 应用宿主与启动装配（alia-server 本机宿主 + apps/webui 面板初始化）</text>
+<text x="1180" y="225" font-size="13" fill="#475569">19 节点 / 19 关系 · 02-platform-hosts</text>
+<rect x="40" y="250" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="275" font-size="14" font-weight="700" fill="#1e3a56">03 · 角色定义、设定文本与模块配置继承解析</text>
+<text x="1180" y="275" font-size="13" fill="#475569">9 节点 / 10 关系 · 03-character</text>
+<rect x="40" y="300" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="325" font-size="14" font-weight="700" fill="#1e3a56">04 · 会话宿主：宿主如何装配通用 Agent</text>
+<text x="1180" y="325" font-size="13" fill="#475569">24 节点 / 27 关系 · 04-runtime-host</text>
+<rect x="40" y="350" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="375" font-size="14" font-weight="700" fill="#1e3a56">05 · 调度器内部：按会话排队、提交、中断与收尾</text>
+<text x="1180" y="375" font-size="13" fill="#475569">24 节点 / 28 关系 · 05-runtime-schedule</text>
+<rect x="40" y="400" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="425" font-size="14" font-weight="700" fill="#1e3a56">06 · 领域数据：Conversation、Turn、Round、Tool 与上下文桶</text>
+<text x="1180" y="425" font-size="13" fill="#475569">22 节点 / 23 关系 · 06-runtime-domain</text>
+<rect x="40" y="450" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="475" font-size="14" font-weight="700" fill="#1e3a56">07 · 推理边界：定义、配置、实例、协议与工具轮次</text>
+<text x="1180" y="475" font-size="13" fill="#475569">24 节点 / 26 关系 · 07-runtime-providers</text>
+<rect x="40" y="500" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="525" font-size="14" font-weight="700" fill="#1e3a56">08 · 工具与输出：注册定义、执行函数、流事件和表现标记</text>
+<text x="1180" y="525" font-size="13" fill="#475569">23 节点 / 28 关系 · 08-runtime-tools</text>
+<rect x="40" y="550" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="575" font-size="14" font-weight="700" fill="#1e3a56">09 · 记忆与技能：条目、决策、后台任务与真实边界</text>
+<text x="1180" y="575" font-size="13" fill="#475569">24 节点 / 24 关系 · 09-runtime-memory</text>
+<rect x="40" y="600" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="625" font-size="14" font-weight="700" fill="#1e3a56">10 · 会话数据所有权：窗口选择、本地记录、媒体与云同步</text>
+<text x="1180" y="625" font-size="13" fill="#475569">22 节点 / 22 关系 · 10-runtime-storage</text>
+<rect x="40" y="650" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="675" font-size="14" font-weight="700" fill="#1e3a56">11 · 主动反应旁路：Spark、Notebook与Character Orchestrator</text>
+<text x="1180" y="675" font-size="13" fill="#475569">20 节点 / 23 关系 · 11-spark</text>
+<rect x="40" y="700" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="725" font-size="14" font-weight="700" fill="#1e3a56">12 · 视觉感知的两条入口与并发边界</text>
+<text x="1180" y="725" font-size="13" fill="#475569">16 节点 / 17 关系 · 12-vision</text>
+<rect x="40" y="750" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="775" font-size="14" font-weight="700" fill="#1e3a56">13 · 语音宿主、控制总线与设备归属</text>
+<text x="1180" y="775" font-size="13" fill="#475569">20 节点 / 23 关系 · 13-voice-host</text>
+<rect x="40" y="800" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="825" font-size="14" font-weight="700" fill="#1e3a56">14 · VoiceController内部：输入文档、插件与决策规则</text>
+<text x="1180" y="825" font-size="13" fill="#475569">23 节点 / 28 关系 · 14-voice-input</text>
+<rect x="40" y="850" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="875" font-size="14" font-weight="700" fill="#1e3a56">15 · 语音输出：生产者、合成、播放与打断</text>
+<text x="1180" y="875" font-size="13" fill="#475569">22 节点 / 25 关系 · 15-voice-output</text>
+<rect x="40" y="900" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="925" font-size="14" font-weight="700" fill="#1e3a56">16 · 流控制、内联动作标记解析与情绪语义信号分发</text>
+<text x="1180" y="925" font-size="13" fill="#475569">7 节点 / 6 关系 · 16-expression</text>
+<rect x="40" y="950" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="975" font-size="14" font-weight="700" fill="#1e3a56">17 · Extension Host 内部组织与状态所有权</text>
+<text x="1180" y="975" font-size="13" fill="#475569">26 节点 / 31 关系 · 17-platform-extension-host</text>
+<rect x="40" y="1000" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="1025" font-size="14" font-weight="700" fill="#1e3a56">18 · Kit 契约、身份、通道与实现边界</text>
+<text x="1180" y="1025" font-size="13" fill="#475569">25 节点 / 24 关系 · 18-platform-kits-protocol</text>
+<rect x="40" y="1050" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="1075" font-size="14" font-weight="700" fill="#1e3a56">19 · 模块 WebSocket 通道：连接、身份、路由和资源</text>
+<text x="1180" y="1075" font-size="13" fill="#475569">23 节点 / 30 关系 · 19-platform-channel</text>
+<rect x="40" y="1100" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="1125" font-size="14" font-weight="700" fill="#1e3a56">20 · Hosted Backend：产品资源、认证、同步与模型网关</text>
+<text x="1180" y="1125" font-size="13" fill="#475569">26 节点 / 31 关系 · 20-platform-backend</text>
+<rect x="40" y="1150" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="1175" font-size="14" font-weight="700" fill="#1e3a56">21 · 异步任务、资源生存期与事件流底座</text>
+<text x="1180" y="1175" font-size="13" fill="#475569">23 节点 / 13 关系 · 21-lifetime</text>
+<rect x="40" y="1200" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="1225" font-size="14" font-weight="700" fill="#1e3a56">22 · 执行观测：生产、运输、采集、投影、回放</text>
+<text x="1180" y="1225" font-size="13" fill="#475569">23 节点 / 26 关系 · 22-observability</text>
+<rect x="40" y="1250" width="1520" height="40" rx="6" fill="#ffffff" stroke="#cbd5e1"/>
+<text x="58" y="1275" font-size="14" font-weight="700" fill="#1e3a56">23 · 项目唯一内置前端：WebUI 控制台面板（测试沙盒对话、配置中心与插件扩展管理）</text>
+<text x="1180" y="1275" font-size="13" fill="#475569">14 节点 / 18 关系 · 23-webui-console</text>
+</svg>
